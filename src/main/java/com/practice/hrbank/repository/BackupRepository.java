@@ -1,0 +1,13 @@
+package com.practice.hrbank.repository;
+
+import com.practice.hrbank.entity.Backup;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface BackupRepository extends JpaRepository<Backup, Long>, JpaSpecificationExecutor<Backup> {
+
+  Optional<Backup> findFirstByOrderByStartedAtDesc();
+}
