@@ -1,17 +1,13 @@
 package com.practice.hrbank.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class DepartmentDto{
-    private Long id;
-    private String name;
-    private String description;
-    private LocalDate establishedDate;
+
+public record DepartmentDto(
+        Long id,
+        String name,
+        String description,
+        LocalDate establishedDate
+) {
 }
