@@ -1,10 +1,7 @@
 package com.practice.hrbank.dto.backup;
 
-import com.practice.hrbank.entity.Employee;
-import java.util.List;
-
 public record CursorPageResponseBackupDto(
-    List<Employee> content,
+//    List<EmployeeDto> content,
     String nextCursor,
     Long nextIdAfter,
     Integer size,
