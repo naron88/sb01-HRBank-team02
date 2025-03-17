@@ -2,7 +2,7 @@ package com.practice.hrbank.dto;
 
 import java.util.List;
 
-public class CursorPageReponseChangeLogDto {
+public class CursorPageResponseChangeLogDto {
     List<Object> content;
     String nextCursor;
     String nextIdAfter;
