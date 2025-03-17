@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class DashboardService {
+
+  // private final EmployeeRepository employeeRepository;
+
   public List<EmployeeTrendDto> getEmployeeTrend(LocalDate from, LocalDate to, String unit) {
     return null;
   }
