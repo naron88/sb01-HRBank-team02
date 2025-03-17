@@ -1,9 +1,9 @@
-package com.practice.hrbank.dto;
+package com.practice.hrbank.dto.changeLogs;
 
 import java.util.List;
 
 public class CursorPageResponseChangeLogDto {
-    List<Object> content;
+    List<ItemsDto> content;
     String nextCursor;
     String nextIdAfter;
     Integer size;
