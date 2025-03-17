@@ -3,7 +3,7 @@ package com.practice.hrbank.controller;
 import com.practice.hrbank.dto.changeLogs.ChangeLogDto;
 import com.practice.hrbank.dto.changeLogs.CursorPageResponseChangeLogDto;
 import com.practice.hrbank.dto.changeLogs.DiffDto;
-import com.practice.hrbank.service.ChangeLogsService;
+import com.practice.hrbank.service.ChangeLogService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/change-logs")
-public class ChangeLogsController {
+public class ChangeLogController {
 
-    ChangeLogsService changeLogsService;
+    ChangeLogService changeLogsService;
 
     @GetMapping()
     public String search(ChangeLogDto changeLogDto) {

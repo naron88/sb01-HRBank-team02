@@ -6,7 +6,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "change-logs")
-public class ChangeLogs {
+public class ChangeLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
