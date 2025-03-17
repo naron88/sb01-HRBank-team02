@@ -1,6 +1,6 @@
 package com.practice.hrbank.service;
 
-import com.practice.hrbank.dto.DepartmentDTO;
+import com.practice.hrbank.dto.DepartmentDto;
 import com.practice.hrbank.repository.DepartmentRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,27 +15,27 @@ public class DepartmentService {
     }
 
 
-    public List<DepartmentDTO> findAll() {
+    public List<DepartmentDto> findAll() {
         return null;
     }
 
 
-    public DepartmentDTO createDepartment(DepartmentDTO departmentDTO) {
+    public DepartmentDto create(DepartmentDto departmentDTO) {
         return null;
     }
 
 
-    public DepartmentDTO findById(Long id) {
+    public DepartmentDto findById(Long id) {
         return null;
     }
 
 
-    public void deleteDepartment(Long id) {
+    public void delete(Long id) {
 
     }
 
 
-    public DepartmentDTO updateDepartment(Long id, DepartmentDTO departmentDTO) {
+    public DepartmentDto update(Long id, DepartmentDto departmentDTO) {
         return null;
     }
 
