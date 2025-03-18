@@ -4,16 +4,18 @@ import com.practice.hrbank.dto.changeLogs.ChangeLogDto;
 import com.practice.hrbank.dto.changeLogs.CursorPageResponseChangeLogDto;
 import com.practice.hrbank.dto.changeLogs.DiffDto;
 import com.practice.hrbank.service.ChangeLogService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/change-logs")
 public class ChangeLogController {
 
-    ChangeLogService changeLogsService;
+    private final ChangeLogService changeLogsService;
 
     @GetMapping()
     public String search(ChangeLogDto changeLogDto) {

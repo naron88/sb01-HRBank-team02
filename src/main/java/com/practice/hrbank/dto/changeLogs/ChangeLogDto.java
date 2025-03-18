@@ -1,7 +1,7 @@
 package com.practice.hrbank.dto.changeLogs;
 
 public record ChangeLogDto(
-        Integer id,
+        Long id,
         String type,
         String employeeNumber,
         String memo,
