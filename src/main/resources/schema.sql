@@ -36,7 +36,7 @@ CREATE TABLE backups
     started_at  TIMESTAMP   NOT NULL,
     ended_at    TIMESTAMP,
     status      VARCHAR(20) NOT NULL CHECK (status IN ('IN_PROGRESS', 'COMPLETED', 'SKIPPED', 'FAILED')),
-    CONSTRAINT fk_backup_metadata FOREIGN KEY (metadata_id) REFERENCES metadatas (id)
+    CONSTRAINT fk_backup_metadata FOREIGN KEY (metadata_id) REFERENCES metadata (id)
 );
 
 CREATE TABLE employees
@@ -53,5 +53,5 @@ CREATE TABLE employees
     hire_date       DATE         NOT NULL,
     status          VARCHAR(10)  NOT NULL CHECK (status IN ('ACTIVE', 'ON_LEAVE', 'RESIGNED')),
     CONSTRAINT fk_employee_department FOREIGN KEY (department_id) REFERENCES departments (id),
-    CONSTRAINT fk_employee_metadata FOREIGN KEY (metadata_id) REFERENCES metadatas (id) ON DELETE CASCADE
+    CONSTRAINT fk_employee_metadata FOREIGN KEY (metadata_id) REFERENCES metadata (id) ON DELETE CASCADE
 );
