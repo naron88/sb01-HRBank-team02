@@ -1,7 +1,10 @@
 package com.practice.hrbank.controller;
 
+import com.practice.hrbank.dto.employee.EmployeeCreateRequest;
 import com.practice.hrbank.dto.employee.EmployeeDto;
 import com.practice.hrbank.service.EmployeeService;
+import jakarta.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,7 +15,9 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,10 +26,11 @@ public class EmployeeController {
   private final EmployeeService employeeService;
 
   @PostMapping
-  public ResponseEntity<EmployeeDto> create() {
+  public ResponseEntity<EmployeeDto> create(@Valid @RequestPart EmployeeCreateRequest request,
+      @RequestPart(value = "profile", required = false) MultipartFile file) throws IOException {
     return ResponseEntity
         .status(HttpStatus.CREATED)
-        .body(employeeService.create());
+        .body(employeeService.create(request, file));
   }
 
   @GetMapping

@@ -2,7 +2,9 @@ package com.practice.hrbank.mapper;
 
 import com.practice.hrbank.dto.employee.EmployeeDto;
 import com.practice.hrbank.entity.Employee;
+import org.springframework.stereotype.Component;
 
+@Component
 public class EmployeeMapper {
 
   public EmployeeDto toDto(Employee employee) {
