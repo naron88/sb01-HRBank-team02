@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @Getter
-@Table(name = "metadatas")
+@Table(name = "metadata")
 public class Metadata {
 
   @Id
