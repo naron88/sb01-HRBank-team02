@@ -1,8 +1,8 @@
 package com.practice.hrbank.controller;
 
-import com.practice.hrbank.dto.changeLogs.ChangeLogDto;
-import com.practice.hrbank.dto.changeLogs.CursorPageResponseChangeLogDto;
-import com.practice.hrbank.dto.changeLogs.DiffDto;
+import com.practice.hrbank.dto.changeLog.ChangeLogDto;
+import com.practice.hrbank.dto.changeLog.CursorPageResponseChangeLogDto;
+import com.practice.hrbank.dto.changeLog.DiffDto;
 import com.practice.hrbank.service.ChangeLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

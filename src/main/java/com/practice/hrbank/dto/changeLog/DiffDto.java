@@ -1,4 +1,4 @@
-package com.practice.hrbank.dto.changeLogs;
+package com.practice.hrbank.dto.changeLog;
 
 public record DiffDto(
         String propertyName,

@@ -12,18 +12,18 @@ public class ChangeLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 10)
     Type type;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 30)
     String employeeNumber;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     String detail;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     String memo;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     String ipAddress;
 
     @Column(nullable = false)
@@ -34,23 +34,3 @@ public class ChangeLog {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
