@@ -64,7 +64,12 @@ public class EmployeeService {
     return null;
   }
 
-  public void delete() {
+  @Transactional
+  public void delete(Long id) {
+    if (!employeeRepository.existsById(id)) {
+      throw new NoSuchElementException("Employee with id " + id + " not found");
+    }
 
+    employeeRepository.deleteById(id);
   }
 }
