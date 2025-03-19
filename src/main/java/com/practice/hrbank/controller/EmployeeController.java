@@ -33,12 +33,12 @@ public class EmployeeController {
 
   @PostMapping
   public ResponseEntity<EmployeeDto> create(@Valid @RequestPart EmployeeCreateRequest request,
-      @RequestPart(value = "profile", required = false) MultipartFile file,
+      @RequestPart(value = "profile", required = false) MultipartFile profile,
       HttpServletRequest httpServletRequest) throws IOException {
     String ipAddress = httpServletRequest.getRemoteAddr();
     return ResponseEntity
         .status(HttpStatus.CREATED)
-        .body(employeeService.create(request, file, ipAddress));
+        .body(employeeService.create(request, profile, ipAddress));
   }
 
   @GetMapping
@@ -84,13 +84,13 @@ public class EmployeeController {
   @PatchMapping("/{id}")
   public ResponseEntity<EmployeeDto> update(@PathVariable Long id,
       @RequestPart EmployeeUpdateRequest request,
-      @RequestPart(value = "profile", required = false) MultipartFile file,
+      @RequestPart(value = "profile", required = false) MultipartFile profile,
       HttpServletRequest httpServletRequest) throws IOException {
     String ipAddress = httpServletRequest.getRemoteAddr();
 
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(employeeService.update(id, request, file, ipAddress));
+        .body(employeeService.update(id, request, profile, ipAddress));
   }
 
 }
