@@ -2,6 +2,8 @@ package com.practice.hrbank.mapper;
 
 import com.practice.hrbank.dto.employee.EmployeeDto;
 import com.practice.hrbank.entity.Employee;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,5 +22,14 @@ public class EmployeeMapper {
         employee.getStatus(),
         employee.getProfileImage().getId()
     );
+  }
+
+  public List<EmployeeDto> toDtoList(List<Employee> employees) {
+    if (employees == null) {
+      return List.of();
+    }
+    return employees.stream()
+        .map(this::toDto)
+        .collect(Collectors.toList());
   }
 }

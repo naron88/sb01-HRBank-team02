@@ -1,5 +1,6 @@
 package com.practice.hrbank.service;
 
+import com.practice.hrbank.dto.employee.CursorPageResponseEmployeeDto;
 import com.practice.hrbank.dto.employee.EmployeeCreateRequest;
 import com.practice.hrbank.dto.employee.EmployeeDto;
 import com.practice.hrbank.dto.employee.EmployeeUpdateRequest;
@@ -10,10 +11,15 @@ import com.practice.hrbank.mapper.EmployeeMapper;
 import com.practice.hrbank.repository.DepartmentRepository;
 import com.practice.hrbank.repository.EmployeeRepository;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Base64;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,8 +59,33 @@ public class EmployeeService {
     );
   }
 
-  public List<EmployeeDto> searchEmployee() {
-    return null;
+  @Transactional(readOnly = true)
+  public CursorPageResponseEmployeeDto<EmployeeDto> searchEmployee(String nameOrEmail, String employeeNumber, String departmentName,
+      String position, LocalDate hireDateFrom, LocalDate hireDateTo, Employee.Status status,
+      Long idAfter, String cursor, Integer size, String sortField, String sortDirection) {
+
+    Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+    Pageable pageable = PageRequest.of(0, size, Sort.by(direction, sortField));
+    Page<Employee> employeePage = employeeRepository.findAllWithFilters(
+        nameOrEmail, employeeNumber, departmentName, position, hireDateFrom, hireDateTo, status,
+        idAfter, cursor, pageable
+    );
+
+    List<EmployeeDto> content = employeeMapper.toDtoList(employeePage.getContent());
+    EmployeeDto lastEmployee = content.isEmpty() ? null : content.get(content.size() - 1);
+
+    String nextCursor = lastEmployee != null ? encodeCursor(lastEmployee.id()) : null;
+    Long nextIdAfter = lastEmployee != null ? lastEmployee.id() : null;
+    boolean hasNext = employeePage.hasNext();
+
+    return new CursorPageResponseEmployeeDto<>(
+        content,
+        nextCursor,
+        nextIdAfter,
+        size,
+        employeePage.getTotalElements(),
+        hasNext
+    );
   }
 
   @Transactional(readOnly = true)
@@ -105,5 +136,9 @@ public class EmployeeService {
     }
 
     employeeRepository.deleteById(id);
+  }
+
+  private String encodeCursor(Long id) {
+    return Base64.getEncoder().encodeToString(id.toString().getBytes());
   }
 }
