@@ -87,8 +87,7 @@ public class BackupService {
       }
     }
 
-    Specification<Backup> spec = Specification.where(
-        getSpec(worker, status, startedAtFrom, startedAtTo, idAfter));
+    Specification<Backup> spec = Specification.where(getSpec(worker, status, startedAtFrom, startedAtTo, idAfter));
     Pageable pageable = createPageable(size, sortField, sortDirection, "startedAt", "desc");
     Page<Backup> backups = backupRepository.findAll(spec, pageable);
 
@@ -130,6 +129,38 @@ public class BackupService {
     return employeeRepository.findByUpdatedAtGreaterThan(lastBackupAt).isPresent();
   }
 
+
+  private Specification<Backup> getSpec(String worker, String status, Instant startedAtFrom,
+      Instant startedAtTo, Long idAfter) {
+    Specification<Backup> spec = Specification.where(null);
+    if (worker != null && !worker.isEmpty()) {
+      spec = spec.and((root, query, cb) ->
+          cb.like(root.get("worker"), "%" + worker + "%"));
+    }
+    if (status != null && !status.isEmpty()) {
+      spec = spec.and((root, query, cb) ->
+          cb.equal(root.get("status"), status));
+    }
+
+    if (startedAtFrom != null && startedAtTo == null) {
+      spec = spec.and((root, query, cb) ->
+          cb.between(root.get("startTime"), startedAtFrom, Instant.now()));
+    } else if (startedAtFrom == null && startedAtTo != null) {
+      spec = spec.and((root, query, cb) ->
+          cb.between(root.get("startTime"), Instant.EPOCH, startedAtTo));
+    }
+    if (startedAtFrom != null && startedAtTo != null) {
+      spec = spec.and((root, query, cb) ->
+          cb.between(root.get("startTime"), startedAtFrom, startedAtTo));
+    }
+
+    if (idAfter != null) {
+      spec = spec.and((root, query, criteriaBuilder) ->
+          criteriaBuilder.greaterThan(root.get("id"), idAfter));
+    }
+
+    return spec;
+  }
 
   private Specification<Backup> getSpec(String worker, String status, Instant startedAtFrom,
       Instant startedAtTo, Long idAfter) {
