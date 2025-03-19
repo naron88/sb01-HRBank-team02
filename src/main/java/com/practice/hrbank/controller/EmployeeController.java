@@ -2,6 +2,7 @@ package com.practice.hrbank.controller;
 
 import com.practice.hrbank.dto.employee.EmployeeCreateRequest;
 import com.practice.hrbank.dto.employee.EmployeeDto;
+import com.practice.hrbank.dto.employee.EmployeeUpdateRequest;
 import com.practice.hrbank.service.EmployeeService;
 import jakarta.validation.Valid;
 import java.io.IOException;
@@ -57,10 +58,12 @@ public class EmployeeController {
   }
 
   @PatchMapping("/{id}")
-  public ResponseEntity<EmployeeDto> update(@PathVariable Long id) {
+  public ResponseEntity<EmployeeDto> update(@PathVariable Long id,
+      @RequestPart EmployeeUpdateRequest request,
+      @RequestPart(value = "profile", required = false) MultipartFile file) throws IOException {
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(employeeService.update());
+        .body(employeeService.update(id, request, file));
   }
 
 }

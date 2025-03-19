@@ -2,6 +2,7 @@ package com.practice.hrbank.service;
 
 import com.practice.hrbank.dto.employee.EmployeeCreateRequest;
 import com.practice.hrbank.dto.employee.EmployeeDto;
+import com.practice.hrbank.dto.employee.EmployeeUpdateRequest;
 import com.practice.hrbank.entity.Department;
 import com.practice.hrbank.entity.Employee;
 import com.practice.hrbank.entity.Metadata;
@@ -60,8 +61,37 @@ public class EmployeeService {
     return null;
   }
 
-  public EmployeeDto update() {
-    return null;
+  @Transactional
+  public EmployeeDto update(Long id, EmployeeUpdateRequest request, MultipartFile file) throws IOException {
+    Employee employee = employeeRepository.findById(id)
+        .orElseThrow(() -> new NoSuchElementException("Employee with id " + id + " not found"));
+
+    // TODO: 유효성 검증 로직 추가
+    if (request.name() != null) {
+      employee.updateName(request.name());
+    }
+    if (request.email() != null) {
+      employee.updateEmail(request.email());
+    }
+    if (request.position() != null) {
+      employee.updatePosition(request.position());
+    }
+    if (request.departmentId() != null) {
+      Department department = departmentRepository.findById(request.departmentId())
+          .orElse(null);
+      employee.updateDepartment(department);
+    }
+    if (file != null) {
+      Metadata profile = metadataService.createProfile(file);
+      employee.updateProfile(profile);
+    }
+    if (request.status() != null) {
+      employee.updateStatus(request.status());
+    }
+
+    // TODO: 변경 이력도 생성
+
+    return employeeMapper.toDto(employee);
   }
 
   @Transactional

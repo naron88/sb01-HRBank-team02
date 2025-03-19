@@ -84,4 +84,46 @@ public class Employee {
     this.profileImage = profileImage;
     this.department = department;
   }
+
+  public void updateName(String newName) {
+    if (this.name.equals(newName)) {
+        return;
+    }
+    this.name = newName;
+  }
+
+  public void updateEmail(String newEmail) {
+    if (this.email.equals(newEmail)) {
+      return;
+    }
+    this.email = newEmail;
+  }
+
+  public void updatePosition(String newPosition) {
+    if (this.position.equals(newPosition)) {
+      return;
+    }
+    this.position = newPosition;
+  }
+
+  public void updateDepartment(Department newDepartment) {
+    if (this.department.getId().equals(newDepartment.getId())) {
+      return;
+    }
+    this.department = newDepartment;
+  }
+
+  public void updateProfile(Metadata newProfileImage) {
+    if (this.profileImage.getId().equals(newProfileImage.getId())) {
+      return;
+    }
+    this.profileImage = newProfileImage;
+  }
+
+  public void updateStatus(Status newStatus) {
+    if (this.status.equals(newStatus)) {
+      return;
+    }
+    this.status = newStatus;
+  }
 }
