@@ -51,7 +51,7 @@ CREATE TABLE employees
     employee_number VARCHAR(255) NOT NULL,
     position        VARCHAR(255) NOT NULL,
     hire_date       DATE         NOT NULL,
-    status          VARCHAR(10)  NOT NULL CHECK (status IN ('ACTIVE', 'ON_LEAVE', 'RESIGNED')),
+    status          VARCHAR(10)  NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'ON_LEAVE', 'RESIGNED')),
     CONSTRAINT fk_employee_department FOREIGN KEY (department_id) REFERENCES departments (id),
     CONSTRAINT fk_employee_metadata FOREIGN KEY (metadata_id) REFERENCES metadata (id) ON DELETE CASCADE
 );
