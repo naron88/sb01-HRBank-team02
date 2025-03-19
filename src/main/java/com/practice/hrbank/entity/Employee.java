@@ -127,4 +127,10 @@ public class Employee {
     }
     this.status = newStatus;
   }
+
+  public void validateDuplicateEmail(String email) {
+    if (this.email.equals(email)) {
+      throw new IllegalArgumentException("Email must be unique");
+    }
+  }
 }

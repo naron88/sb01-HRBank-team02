@@ -38,6 +38,8 @@ public class EmployeeService {
 
   @Transactional
   public EmployeeDto create(EmployeeCreateRequest request, MultipartFile file, String ipAddress) throws IOException {
+    validateDuplicateEmail(request.email());
+
     Metadata profile = file != null ? metadataService.createProfile(file) : null;
     Department department = departmentRepository.findById(request.departmentId())
         .orElseThrow(() -> new NoSuchElementException("Department with id " + request.departmentId() + " not found"));
@@ -155,5 +157,10 @@ public class EmployeeService {
 
   private String encodeCursor(Long id) {
     return Base64.getEncoder().encodeToString(id.toString().getBytes());
+  }
+
+  public void validateDuplicateEmail(String email) {
+    employeeRepository.findAll()
+        .forEach(employee -> employee.validateDuplicateEmail(email));
   }
 }
