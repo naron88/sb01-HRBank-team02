@@ -6,6 +6,7 @@ import com.practice.hrbank.dto.employee.EmployeeDto;
 import com.practice.hrbank.dto.employee.EmployeeUpdateRequest;
 import com.practice.hrbank.entity.Employee;
 import com.practice.hrbank.service.EmployeeService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -32,10 +33,12 @@ public class EmployeeController {
 
   @PostMapping
   public ResponseEntity<EmployeeDto> create(@Valid @RequestPart EmployeeCreateRequest request,
-      @RequestPart(value = "profile", required = false) MultipartFile file) throws IOException {
+      @RequestPart(value = "profile", required = false) MultipartFile file,
+      HttpServletRequest httpServletRequest) throws IOException {
+    String ipAddress = httpServletRequest.getRemoteAddr();
     return ResponseEntity
         .status(HttpStatus.CREATED)
-        .body(employeeService.create(request, file));
+        .body(employeeService.create(request, file, ipAddress));
   }
 
   @GetMapping
@@ -69,8 +72,9 @@ public class EmployeeController {
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> delete(@PathVariable Long id) {
-    employeeService.delete(id);
+  public ResponseEntity<Void> delete(@PathVariable Long id, HttpServletRequest httpServletRequest) {
+    String ipAddress = httpServletRequest.getRemoteAddr();
+    employeeService.delete(id, ipAddress);
 
     return ResponseEntity
         .status(HttpStatus.NO_CONTENT)
@@ -80,10 +84,13 @@ public class EmployeeController {
   @PatchMapping("/{id}")
   public ResponseEntity<EmployeeDto> update(@PathVariable Long id,
       @RequestPart EmployeeUpdateRequest request,
-      @RequestPart(value = "profile", required = false) MultipartFile file) throws IOException {
+      @RequestPart(value = "profile", required = false) MultipartFile file,
+      HttpServletRequest httpServletRequest) throws IOException {
+    String ipAddress = httpServletRequest.getRemoteAddr();
+
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(employeeService.update(id, request, file));
+        .body(employeeService.update(id, request, file, ipAddress));
   }
 
 }

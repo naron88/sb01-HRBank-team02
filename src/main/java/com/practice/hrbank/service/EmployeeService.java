@@ -37,7 +37,7 @@ public class EmployeeService {
   private final DepartmentRepository departmentRepository;
 
   @Transactional
-  public EmployeeDto create(EmployeeCreateRequest request, MultipartFile file) throws IOException {
+  public EmployeeDto create(EmployeeCreateRequest request, MultipartFile file, String ipAddress) throws IOException {
     Metadata profile = file != null ? metadataService.createProfile(file) : null;
     Department department = departmentRepository.findById(request.departmentId())
         .orElseThrow(() -> new NoSuchElementException("Department with id " + request.departmentId() + " not found"));
@@ -97,7 +97,7 @@ public class EmployeeService {
   }
 
   @Transactional
-  public EmployeeDto update(Long id, EmployeeUpdateRequest request, MultipartFile file) throws IOException {
+  public EmployeeDto update(Long id, EmployeeUpdateRequest request, MultipartFile file, String ipAddress) throws IOException {
     Employee employee = employeeRepository.findById(id)
         .orElseThrow(() -> new NoSuchElementException("Employee with id " + id + " not found"));
 
@@ -130,7 +130,7 @@ public class EmployeeService {
   }
 
   @Transactional
-  public void delete(Long id) {
+  public void delete(Long id, String ipAddress) {
     if (!employeeRepository.existsById(id)) {
       throw new NoSuchElementException("Employee with id " + id + " not found");
     }
