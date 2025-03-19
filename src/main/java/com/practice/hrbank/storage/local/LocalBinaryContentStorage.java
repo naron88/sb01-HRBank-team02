@@ -11,8 +11,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -29,18 +29,14 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
   }
 
   @PostConstruct
-  public void init() {
-    try {
-      Files.createDirectories(root);
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to create storage directory", e);
-    }
+  public void init() throws IOException {
+    Files.createDirectories(root);
   }
 
   @Override
   public Long put(Long id, byte[] bytes) {
     Path filePath = resolvePath(id);
-    try (OutputStream outputStream = Files.newOutputStream(filePath)){
+    try (OutputStream outputStream = Files.newOutputStream(filePath)) {
       outputStream.write(bytes);
     } catch (IOException e) {
       throw new RuntimeException("Failed to store file", e);

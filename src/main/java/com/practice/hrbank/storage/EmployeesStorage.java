@@ -2,20 +2,15 @@ package com.practice.hrbank.storage;
 
 import com.practice.hrbank.dto.employee.EmployeeDto;
 import com.practice.hrbank.entity.Metadata;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 
 public interface EmployeesStorage {
 
-  EmployeeDto save(EmployeeDto employeeDto);
+  Long save(Long backupId) throws IOException;
 
-  Optional<EmployeeDto> findById(Long id);
-
-  List<EmployeeDto> findAll();
-
-  void deleteById(Long id);
-
-  ResponseEntity<?> download(Metadata metadata);
+  ResponseEntity<?> download(Long backupId);
 
 }
