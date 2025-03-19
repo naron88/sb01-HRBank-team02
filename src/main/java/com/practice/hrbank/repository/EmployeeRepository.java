@@ -5,6 +5,8 @@ import com.practice.hrbank.entity.Employee.Status;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.time.Instant;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
@@ -24,4 +26,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
   // 특정 기간 입사한 직원 수 조회
   int countByHireDateBetween(LocalDate startDate, LocalDate endDate);
+  Optional<Employee> findByUpdatedAtGreaterThan(Instant lastBatchTime); //최근에 수정된 직원 조회
 }
