@@ -22,7 +22,7 @@ CREATE TABLE change_logs
     id              BIGSERIAL                PRIMARY KEY,
     type            VARCHAR(10)  NOT NULL CHECK (type IN ('IN_PROGRESS', 'COMPLETED', 'FAILED')),
     employee_number VARCHAR(30)  NOT NULL,
-    detail          VARCHAR(255) NOT NULL,
+    detail          TEXT NOT NULL,
     memo            VARCHAR(255) NOT NULL DEFAULT '직원 정보 수정',
     ip_address      VARCHAR(20)  NOT NULL,
     at              TIMESTAMP    NOT NULL
