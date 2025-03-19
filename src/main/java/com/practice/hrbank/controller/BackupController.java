@@ -3,6 +3,8 @@ package com.practice.hrbank.controller;
 import com.practice.hrbank.dto.backup.BackupDto;
 import com.practice.hrbank.dto.backup.CursorPageResponseBackupDto;
 import com.practice.hrbank.service.BackupService;
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,8 +39,12 @@ public class BackupController {
   }
 
   @PostMapping
-  public ResponseEntity<BackupDto> create() {
-    BackupDto backup = backupService.create();
+  public ResponseEntity<BackupDto> create(HttpServletRequest request) throws IOException {
+    String clientIp = request.getHeader("X-Forwarded-For");
+    if (clientIp == null || clientIp.isEmpty() || "unknown".equalsIgnoreCase(clientIp)) {
+      clientIp = request.getRemoteAddr();
+    }
+    BackupDto backup = backupService.create(clientIp);
     return ResponseEntity.ok(backup);
   }
 
@@ -46,7 +52,7 @@ public class BackupController {
   public ResponseEntity<BackupDto> getLatest(
       @RequestParam(required = false) String status
   ) {
-    BackupDto backup = backupService.findLatest();
+    BackupDto backup = backupService.findLatest(status);
     return ResponseEntity.ok(backup);
   }
 
