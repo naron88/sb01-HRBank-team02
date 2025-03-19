@@ -100,6 +100,10 @@ public class EmployeeService {
   public EmployeeDto update(Long id, EmployeeUpdateRequest request, MultipartFile file, String ipAddress) throws IOException {
     Employee employee = employeeRepository.findById(id)
         .orElseThrow(() -> new NoSuchElementException("Employee with id " + id + " not found"));
+    Department department = departmentRepository.findById(request.departmentId())
+        .orElse(null);
+
+    // TODO: 변경 먼저 생성
 
     // TODO: 유효성 검증 로직 추가
     if (request.name() != null) {
@@ -111,9 +115,7 @@ public class EmployeeService {
     if (request.position() != null) {
       employee.updatePosition(request.position());
     }
-    if (request.departmentId() != null) {
-      Department department = departmentRepository.findById(request.departmentId())
-          .orElse(null);
+    if (department != null) {
       employee.updateDepartment(department);
     }
     if (file != null) {
@@ -123,9 +125,7 @@ public class EmployeeService {
     if (request.status() != null) {
       employee.updateStatus(request.status());
     }
-
-    // TODO: 변경 이력도 생성
-
+    
     return employeeMapper.toDto(employee);
   }
 
