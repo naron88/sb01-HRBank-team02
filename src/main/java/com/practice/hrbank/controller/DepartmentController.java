@@ -3,10 +3,7 @@ package com.practice.hrbank.controller;
 import com.practice.hrbank.dto.DepartmentDto;
 import com.practice.hrbank.service.DepartmentService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -26,6 +23,16 @@ public class DepartmentController {
         DepartmentDto createdDepartment = departmentService.create(departmentDto);
         return ResponseEntity.created(URI.create("/api/departments/" + createdDepartment.id()))
                 .body(createdDepartment);
+    }
+
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<DepartmentDto> updateDepartment(
+            @PathVariable Long id,
+            @RequestBody DepartmentDto departmentDto
+    ) {
+        DepartmentDto updatedDepartment = departmentService.update(id, departmentDto);
+        return ResponseEntity.ok(updatedDepartment);
     }
 
 
