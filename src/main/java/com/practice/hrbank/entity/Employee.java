@@ -80,6 +80,7 @@ public class Employee {
     this.employeeNumber = employeeNumber;
     this.position = position;
     this.hireDate = hireDate;
+    this.status = Status.ACTIVE;
 
     this.profileImage = profileImage;
     this.department = department;
