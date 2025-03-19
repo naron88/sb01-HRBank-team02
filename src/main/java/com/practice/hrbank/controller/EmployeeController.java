@@ -45,7 +45,7 @@ public class EmployeeController {
   public ResponseEntity<EmployeeDto> find(@PathVariable Long id) {
     return ResponseEntity
         .status(HttpStatus.OK)
-        .body(employeeService.findById());
+        .body(employeeService.findById(id));
   }
 
   @DeleteMapping("/{id}")
