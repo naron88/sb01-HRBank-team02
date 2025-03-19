@@ -9,7 +9,6 @@ import com.practice.hrbank.dto.backup.CursorPageResponseBackupDto;
 import com.practice.hrbank.entity.Backup;
 import com.practice.hrbank.mapper.BackupMapper;
 import com.practice.hrbank.repository.BackupRepository;
-import java.net.URL;
 import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -109,8 +108,4 @@ public class BackupService {
   }
 
 
-  public Backup findById(Long backupId) {
-    return backupRepository.findById(backupId)
-        .orElseThrow(() -> new NoSuchElementException(""));
-  }
 }

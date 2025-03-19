@@ -1,32 +1,20 @@
 package com.practice.hrbank.storage.local;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-
 import com.practice.hrbank.entity.Department;
 import com.practice.hrbank.entity.Employee;
 import com.practice.hrbank.entity.Employee.Status;
 import com.practice.hrbank.entity.Metadata;
-import com.practice.hrbank.repository.EmployeeRepository;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -83,6 +71,6 @@ public class LocalEmployeesStorageTest {
 
     // then
     assertNotNull(responseEntity.getBody());
-    assertTrue(responseEntity.getBody() instanceof InputStreamResource);
+    assertInstanceOf(InputStreamResource.class, responseEntity.getBody());
   }
 }
