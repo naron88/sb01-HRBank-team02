@@ -41,18 +41,19 @@ public class EmployeeService {
     Metadata profile = file != null ? metadataService.createProfile(file) : null;
     Department department = departmentRepository.findById(request.departmentId())
         .orElseThrow(() -> new NoSuchElementException("Department with id " + request.departmentId() + " not found"));
-
-    // TODO: 사번 패턴 적용해서 할당
-    // TODO: 변경 이력도 생성
+    String employeeNumber = generateEmployeeNumber();
+    
     Employee employee = new Employee(
         request.name(),
         request.email(),
-        "employeeNumber",
+        employeeNumber,
         request.position(),
         request.hireDate(),
         profile,
         department
     );
+
+    // TODO: 변경 이력도 생성
 
     return employeeMapper.toDto(
         employeeRepository.save(employee)
@@ -125,7 +126,7 @@ public class EmployeeService {
     if (request.status() != null) {
       employee.updateStatus(request.status());
     }
-    
+
     return employeeMapper.toDto(employee);
   }
 
@@ -136,6 +137,20 @@ public class EmployeeService {
     }
 
     employeeRepository.deleteById(id);
+  }
+
+  public String generateEmployeeNumber() {
+    int currentYear = LocalDate.now().getYear();
+    String lastEmployeeNumber = employeeRepository.findLatestEmployeeNumberByYear(currentYear);
+
+    if (lastEmployeeNumber == null) {
+      return "EMP-" + currentYear + "-001";
+    }
+
+    int lastNumber = Integer.parseInt(lastEmployeeNumber.substring(lastEmployeeNumber.length() - 3));
+    int newNumber = lastNumber + 1;
+
+    return String.format("EMP-%d-%03d", currentYear, newNumber);
   }
 
   private String encodeCursor(Long id) {
