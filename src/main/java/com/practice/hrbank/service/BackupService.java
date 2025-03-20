@@ -7,8 +7,12 @@ import static com.practice.hrbank.util.CursorPaginationUtils.encodeCursor;
 import com.practice.hrbank.dto.backup.BackupDto;
 import com.practice.hrbank.dto.backup.CursorPageResponseBackupDto;
 import com.practice.hrbank.entity.Backup;
+import com.practice.hrbank.entity.Backup.Status;
+import com.practice.hrbank.entity.Metadata;
 import com.practice.hrbank.mapper.BackupMapper;
 import com.practice.hrbank.repository.BackupRepository;
+import com.practice.hrbank.repository.EmployeeRepository;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -24,10 +28,51 @@ public class BackupService {
 
   private final BackupRepository backupRepository;
   private final BackupMapper backupMapper;
+  private final EmployeeRepository employeeRepository;
+  private final MetadataService metadataService;
 
-  public BackupDto create() {
-    Backup backup = new Backup();
-    backupRepository.save(backup);
+  public BackupDto create(String clientIp) throws IOException {
+    if (isChanged()) {
+      Backup backup = new Backup(
+          null,
+          Status.IN_PROGRESS,
+          Instant.now(),
+          null,
+          clientIp
+      );
+      backup = backupRepository.save(backup);
+
+      try {
+        Metadata metadata = metadataService.createEmployeesFile(backup.getId());
+        backup.setFile(metadata);
+        backup.setEndedAt(Instant.now());
+        backup.setStatus(Status.COMPLETED);
+        backup = backupRepository.save(backup);
+        return backupMapper.toDto(backup);
+      } catch (IOException e) {
+        Metadata metadata = metadataService.createErrorLogFile(Instant.now(), e.getMessage());
+        backup.setFile(metadata);
+        backup.setEndedAt(Instant.now());
+        backup.setStatus(Status.FAILED);
+        backup = backupRepository.save(backup);
+        return backupMapper.toDto(backup);
+      }
+    } else {
+      Backup skippedBackup = new Backup(
+          null,
+          Status.SKIPPED,
+          Instant.now(),
+          Instant.now(),
+          clientIp
+      );
+      skippedBackup = backupRepository.save(skippedBackup);
+      return backupMapper.toDto(skippedBackup);
+    }
+  }
+
+  public BackupDto findById(Long id) {
+    Backup backup = backupRepository.findById(id)
+        .orElseThrow(() -> new NoSuchElementException("Backup not found. id: " + id));
     return backupMapper.toDto(backup);
   }
 
@@ -65,14 +110,56 @@ public class BackupService {
     );
   }
 
-  public BackupDto findLatest() {
-    Backup lastBackup = backupRepository.findFirstByOrderByStartedAtDesc()
-        .orElseThrow(() -> new NoSuchElementException("No backup found"));
+
+  public BackupDto findLatest(String status) {
+    Status backupStatus = status == null ? Status.COMPLETED : Status.valueOf(status);
+    Backup lastBackup = backupRepository.findFirstByStatusOrderByStartedAtDesc(backupStatus)
+        .orElse(null);
+    if (lastBackup == null) {
+      return null;
+    }
     return backupMapper.toDto(lastBackup);
   }
 
-  private boolean isChanged(Backup lastBackup) {
-    return false;
+  private boolean isChanged() {
+    Instant lastBackupAt = findLatest("COMPLETED") == null ? null : findLatest("COMPLETED").startedAt();
+    if (lastBackupAt == null) {
+      return false;
+    }
+    return employeeRepository.findByUpdatedAtGreaterThan(lastBackupAt).isPresent();
+  }
+
+
+  private Specification<Backup> getSpec(String worker, String status, Instant startedAtFrom,
+      Instant startedAtTo, Long idAfter) {
+    Specification<Backup> spec = Specification.where(null);
+    if (worker != null && !worker.isEmpty()) {
+      spec = spec.and((root, query, cb) ->
+          cb.like(root.get("worker"), "%" + worker + "%"));
+    }
+    if (status != null && !status.isEmpty()) {
+      spec = spec.and((root, query, cb) ->
+          cb.equal(root.get("status"), status));
+    }
+
+    if (startedAtFrom != null && startedAtTo == null) {
+      spec = spec.and((root, query, cb) ->
+          cb.between(root.get("startTime"), startedAtFrom, Instant.now()));
+    } else if (startedAtFrom == null && startedAtTo != null) {
+      spec = spec.and((root, query, cb) ->
+          cb.between(root.get("startTime"), Instant.EPOCH, startedAtTo));
+    }
+    if (startedAtFrom != null && startedAtTo != null) {
+      spec = spec.and((root, query, cb) ->
+          cb.between(root.get("startTime"), startedAtFrom, startedAtTo));
+    }
+
+    if (idAfter != null) {
+      spec = spec.and((root, query, criteriaBuilder) ->
+          criteriaBuilder.greaterThan(root.get("id"), idAfter));
+    }
+
+    return spec;
   }
 
   private Specification<Backup> getSpec(String worker, String status, Instant startedAtFrom,
