@@ -6,11 +6,15 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
+public interface EmployeeRepository extends JpaRepository<Employee, Long>, EmployeeRepositoryCustom {
 
-public interface EmployeeRepository extends JpaRepository<Employee, Long> {
-
+  @Query("SELECT e.employeeNumber FROM Employee e WHERE e.employeeNumber LIKE :yearPrefix ORDER BY e.employeeNumber DESC")
+  String findLatestEmployeeNumberByYear(@Param("yearPrefix") int yearPrefix);
+    
   // 특정 날짜 이전에 입사한 직원 수 조회
   int countByHireDateBefore(LocalDate date);
 
