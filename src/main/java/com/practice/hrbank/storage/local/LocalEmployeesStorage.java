@@ -1,21 +1,25 @@
 package com.practice.hrbank.storage.local;
 
+import static java.nio.file.Paths.get;
+
 import com.practice.hrbank.entity.Employee;
-import com.practice.hrbank.repository.EmployeeRepository;
+import com.practice.hrbank.entity.Metadata;
 import com.practice.hrbank.storage.EmployeesStorage;
 import jakarta.annotation.PostConstruct;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -24,13 +28,10 @@ import org.springframework.stereotype.Component;
 public class LocalEmployeesStorage implements EmployeesStorage {
 
   private final Path root;
-  private final EmployeeRepository employeeRepository;
 
   @Autowired
-  public LocalEmployeesStorage(@Value("${hrbank.storage.local.paths.employees-path}") String root,
-      EmployeeRepository employeeRepository) throws IOException {
-    this.root = Paths.get(root);
-    this.employeeRepository = employeeRepository;
+  public LocalEmployeesStorage(@Value("${hrbank.storage.local.paths.employees-path}") String root) {
+    this.root = get(root);
   }
 
   @PostConstruct
@@ -39,24 +40,28 @@ public class LocalEmployeesStorage implements EmployeesStorage {
   }
 
   @Override
-  public Long save(Long backupId) throws IOException {
+  public Long save(Long backupId, List<Employee> employees) throws IOException {
+    System.out.println("Saving employee backup with backupId: " + backupId);
     String backupFileName = "employee_backup_" + backupId + ".csv";
     Path filePath = root.resolve(backupFileName);
-    List<Employee> employees = employeeRepository.findAll();
-
+    System.out.println("Number of employees to save: " + employees.size());
     saveEmployeesToCsv(filePath, employees);
     return Files.size(filePath);
   }
 
   @Override
-  public ResponseEntity<Resource> download(Long backupId) {
-    String backupFileName = "employee_backup_" + backupId + ".csv";
-    Path filePath = root.resolve(backupFileName);
-    if (Files.notExists(filePath)) {
-      throw new RuntimeException("파일이 존재하지 않습니다.");
-    }
-    org.springframework.core.io.Resource resource = new FileSystemResource(filePath);
-    return ResponseEntity.ok().body(resource);
+  public ResponseEntity<Resource> download(Metadata metadata) throws IOException {
+    Path filePath = root.resolve(metadata.getName());
+    InputStream inputStream = Files.newInputStream(filePath);
+    Resource resource = new InputStreamResource(inputStream);
+
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .header(HttpHeaders.CONTENT_DISPOSITION,
+            "attachment; filename=\"" + metadata.getName() + "\"")
+        .header(HttpHeaders.CONTENT_TYPE, metadata.getContentType())
+        .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(metadata.getSize()))
+        .body(resource);
   }
 
   private void saveEmployeesToCsv(Path filePath, List<Employee> employees) throws IOException {
@@ -64,10 +69,11 @@ public class LocalEmployeesStorage implements EmployeesStorage {
         StandardOpenOption.TRUNCATE_EXISTING)) {
       writer.write("ID,직원번호,이름,이메일,부서,직급,입사일,상태");
       writer.newLine();
+      System.out.println("ready");
 
       for (Employee emp : employees) {
-        writer.write(
-            String.join(",",
+        System.out.println("Writing employee: " + emp.getId() + ", " + emp.getEmployeeNumber());
+        writer.write(String.join(",",
                 emp.getId().toString(),
                 emp.getEmployeeNumber(),
                 emp.getName(),
