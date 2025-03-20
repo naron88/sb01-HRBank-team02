@@ -116,18 +116,19 @@ public class EmployeeService {
     Employee employee = employeeRepository.findById(id)
         .orElseThrow(() -> new NoSuchElementException("Employee with id " + id + " not found"));
     Department department = departmentRepository.findById(request.departmentId())
-        .orElse(null);
+        .orElseThrow(() -> new NoSuchElementException(
+            "Department with id " + request.departmentId() + " not found"));
 
     EmployeeDto beforeEmployeeDto = employeeMapper.toDto(employee);
 
-    // TODO: 유효성 검증 로직 추가
-    if (request.name() != null) {
+    if (request.name() != null && !request.name().isBlank()) {
       employee.updateName(request.name());
     }
-    if (request.email() != null) {
+    if ( request.email() != null && !request.email().isBlank()){
+      validateDuplicateEmail(request.email());
       employee.updateEmail(request.email());
     }
-    if (request.position() != null) {
+    if (request.position() != null && !request.position().isBlank()) {
       employee.updatePosition(request.position());
     }
     if (department != null) {
