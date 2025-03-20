@@ -47,7 +47,7 @@ CREATE TABLE employees
     metadata_id     BIGINT,
     department_id   BIGINT       NOT NULL,
     name            VARCHAR(20)  NOT NULL,
-    email           VARCHAR(255) NOT NULL,
+    email           VARCHAR(255) NOT NULL UNIQUE,
     employee_number VARCHAR(255) NOT NULL,
     position        VARCHAR(255) NOT NULL,
     hire_date       DATE         NOT NULL,
