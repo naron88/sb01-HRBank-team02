@@ -32,6 +32,9 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, Emplo
   int countByHireDateBetween(LocalDate startDate, LocalDate endDate);
   
   // 최근에 수정된 직원 조회
-  Optional<Employee> findByUpdatedAtGreaterThan(Instant lastBatchTime); 
+  Optional<Employee> findByUpdatedAtGreaterThan(Instant lastBatchTime);
+
+  // 부서에 소속된 직원이 있는지 확인
+  boolean existsByDepartmentId(Long departmentId);
 
 }
