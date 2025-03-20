@@ -23,6 +23,8 @@ public class QDepartment extends EntityPathBase<Department> {
 
     public final StringPath description = createString("description");
 
+    public final NumberPath<Integer> employeeCount = createNumber("employeeCount", Integer.class);
+
     public final DatePath<java.time.LocalDate> establishedDate = createDate("establishedDate", java.time.LocalDate.class);
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
