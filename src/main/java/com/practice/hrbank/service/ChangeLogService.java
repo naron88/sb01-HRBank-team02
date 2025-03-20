@@ -9,7 +9,6 @@ import com.practice.hrbank.dto.changeLog.CursorPageResponseChangeLogDto;
 import com.practice.hrbank.dto.changeLog.DiffDto;
 import com.practice.hrbank.dto.employee.EmployeeDto;
 import com.practice.hrbank.entity.ChangeLog;
-import com.practice.hrbank.entity.Employee;
 import com.practice.hrbank.repository.ChangeLogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,7 +21,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
