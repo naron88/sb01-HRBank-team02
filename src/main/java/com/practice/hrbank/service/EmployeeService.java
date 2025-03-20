@@ -46,7 +46,7 @@ public class EmployeeService {
     Department department = departmentRepository.findById(request.departmentId())
         .orElseThrow(() -> new NoSuchElementException("Department with id " + request.departmentId() + " not found"));
     String employeeNumber = generateEmployeeNumber();
-    
+
     Employee employee = new Employee(
         request.name(),
         request.email(),
@@ -114,7 +114,7 @@ public class EmployeeService {
     Department department = departmentRepository.findById(request.departmentId())
         .orElse(null);
 
-    // TODO: 변경 먼저 생성
+    EmployeeDto beforeEmployeeDto = employeeMapper.toDto(employee);
 
     // TODO: 유효성 검증 로직 추가
     if (request.name() != null) {
@@ -137,7 +137,17 @@ public class EmployeeService {
       employee.updateStatus(request.status());
     }
 
-    return employeeMapper.toDto(employee);
+    EmployeeDto afterEmployeeDto = employeeMapper.toDto(employee);
+    ChangeLogCreateRequest changeLogCreateRequest = new ChangeLogCreateRequest(
+        beforeEmployeeDto,
+        afterEmployeeDto,
+        ipAddress,
+        request.memo(),
+        Type.UPDATED
+    );
+    changeLogService.save(changeLogCreateRequest);
+
+    return afterEmployeeDto;
   }
 
   @Transactional
