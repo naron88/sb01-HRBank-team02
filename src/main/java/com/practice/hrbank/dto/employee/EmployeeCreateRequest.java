@@ -18,6 +18,7 @@ public record EmployeeCreateRequest(
     Long departmentId,
 
     @NotNull
+    @Size(min = 1)
     String position,
 
     @NotNull

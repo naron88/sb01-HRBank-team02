@@ -2,22 +2,16 @@ package com.practice.hrbank.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.practice.hrbank.dto.DepartmentCreateRequest;
-import com.practice.hrbank.dto.changeLog.ChangeLogDto;
-import com.practice.hrbank.dto.changeLog.CursorPageResponseChangeLogDto;
+import com.practice.hrbank.dto.changeLog.ChangeLogCreateRequest;
 import com.practice.hrbank.dto.changeLog.DiffDto;
 import com.practice.hrbank.dto.employee.EmployeeDto;
 import com.practice.hrbank.entity.ChangeLog;
-import com.practice.hrbank.entity.Employee;
 import com.practice.hrbank.repository.ChangeLogRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +20,7 @@ public class ChangeLogService {
     private final ChangeLogRepository changeLogRepository;
     private final ObjectMapper objectMapper;
 
-    public void save(DepartmentCreateRequest departmentCreateRequest) {
+    public void save(ChangeLogCreateRequest departmentCreateRequest) {
         List<DiffDto> detail = getdiff(departmentCreateRequest.beforeEmployeeDto(), departmentCreateRequest.afterEmployeeDto());
 
         try {
