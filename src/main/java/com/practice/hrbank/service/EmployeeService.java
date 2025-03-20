@@ -156,9 +156,18 @@ public class EmployeeService {
 
   @Transactional
   public void delete(Long id, String ipAddress) {
-    if (!employeeRepository.existsById(id)) {
-      throw new NoSuchElementException("Employee with id " + id + " not found");
-    }
+    Employee employee = employeeRepository.findById(id)
+        .orElseThrow(() -> new NoSuchElementException("Employee with id " + id + " not found"));
+
+    EmployeeDto employeeDto = employeeMapper.toDto(employee);
+    ChangeLogCreateRequest changeLogCreateRequest = new ChangeLogCreateRequest(
+        employeeDto,
+        null,
+        ipAddress,
+        "직원 삭제",
+        Type.DELETED
+    );
+    changeLogService.save(changeLogCreateRequest);
 
     employeeRepository.deleteById(id);
   }
