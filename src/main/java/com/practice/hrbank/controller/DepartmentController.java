@@ -1,6 +1,7 @@
 package com.practice.hrbank.controller;
 
 import com.practice.hrbank.dto.DepartmentDto;
+import com.practice.hrbank.dto.DepartmentUpdateRequest;
 import com.practice.hrbank.service.DepartmentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,9 +30,9 @@ public class DepartmentController {
     @PatchMapping("/{id}")
     public ResponseEntity<DepartmentDto> updateDepartment(
             @PathVariable Long id,
-            @RequestBody DepartmentDto departmentDto
-    ) {
-        DepartmentDto updatedDepartment = departmentService.update(id, departmentDto);
+            @RequestBody DepartmentUpdateRequest departmentUpdateRequest
+            ) {
+        DepartmentDto updatedDepartment = departmentService.update(id, departmentUpdateRequest);
         return ResponseEntity.ok(updatedDepartment);
     }
 

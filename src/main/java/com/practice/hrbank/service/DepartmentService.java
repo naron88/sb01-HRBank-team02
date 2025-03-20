@@ -1,6 +1,7 @@
 package com.practice.hrbank.service;
 
 import com.practice.hrbank.dto.DepartmentDto;
+import com.practice.hrbank.dto.DepartmentUpdateRequest;
 import com.practice.hrbank.entity.Department;
 import com.practice.hrbank.repository.DepartmentRepository;
 import jakarta.transaction.Transactional;
@@ -31,7 +32,8 @@ public class DepartmentService {
         Department department = new Department(
                 departmentDTO.name(),
                 departmentDTO.description(),
-                departmentDTO.establishedDate()
+                departmentDTO.establishedDate(),
+                0
         );
 
         Department savedDepartment = departmentRepository.save(department);
@@ -40,7 +42,8 @@ public class DepartmentService {
                 savedDepartment.getId(),
                 savedDepartment.getName(),
                 savedDepartment.getDescription(),
-                savedDepartment.getEstablishedDate()
+                savedDepartment.getEstablishedDate(),
+                savedDepartment.getEmployeeCount()
         );
     }
 
@@ -55,17 +58,15 @@ public class DepartmentService {
     }
 
 
-    public DepartmentDto update(Long id, DepartmentDto departmentDto) {
+    public DepartmentDto update(Long id, DepartmentUpdateRequest departmentUpdateRequest) {
 
         Department department = departmentRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 부서가 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("부서를 찾을 수 없습니다."));
 
-        // System.out.println(">>> 기존 부서명: " + department.getName());
-        // System.out.println(">>> 변경 요청 부서명: " + departmentDto.name()); 테스트용 코드
 
         // 이름이 변경되는 경우에만 중복 검사 수행 <<
-        if (departmentDto.name() != null && !departmentDto.name().equals(department.getName())) {
-            departmentRepository.findByName(departmentDto.name())
+        if (departmentUpdateRequest.name() != null && !departmentUpdateRequest.name().equals(department.getName())) {
+            departmentRepository.findByName(departmentUpdateRequest.name())
                     .filter(existingDepartment -> !existingDepartment.getId().equals(id))
                     .ifPresent(existing -> {
                         throw new IllegalArgumentException("이미 존재하는 부서명입니다.");
@@ -73,13 +74,14 @@ public class DepartmentService {
         }
 
         // null이 아닌 값만 업데이트 <<
-        department.update(departmentDto.name(), departmentDto.description(), departmentDto.establishedDate());
+        department.update(departmentUpdateRequest.name(), departmentUpdateRequest.description(), departmentUpdateRequest.establishedDate());
 
         return new DepartmentDto(
                 department.getId(),
                 department.getName(),
                 department.getDescription(),
-                department.getEstablishedDate()
+                department.getEstablishedDate(),
+                department.getEmployeeCount()
         );
     }
 }

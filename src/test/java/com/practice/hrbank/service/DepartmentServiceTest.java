@@ -1,6 +1,7 @@
 package com.practice.hrbank.service;
 
 import com.practice.hrbank.dto.DepartmentDto;
+import com.practice.hrbank.dto.DepartmentUpdateRequest;
 import com.practice.hrbank.entity.Department;
 import com.practice.hrbank.repository.DepartmentRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,8 +32,8 @@ class DepartmentServiceTest {
 
     @BeforeEach
     void setUp() {
-        department = new Department(1L, "HR", "Human Resources", LocalDate.of(2020, 1, 1));
-        departmentDto = new DepartmentDto(1L, "HR", "Human Resources", LocalDate.of(2020, 1, 1));
+        department = new Department(1L, "HR", "Human Resources", LocalDate.of(2020, 1, 1), 0);
+        departmentDto = new DepartmentDto(1L, "HR", "Human Resources", LocalDate.of(2020, 1, 1), 0);
     }
 
     @Test
@@ -42,9 +43,8 @@ class DepartmentServiceTest {
 
         DepartmentDto savedDto = departmentService.create(departmentDto);
 
-        assertThat(savedDto).isNotNull();
-        assertThat(savedDto.name()).isEqualTo("HR");
-        verify(departmentRepository, times(1)).save(any(Department.class));
+        assertThat(savedDto).isNotNull().extracting(DepartmentDto::name).isEqualTo("HR");
+        verify(departmentRepository).save(any(Department.class));
     }
 
     @Test
@@ -61,63 +61,55 @@ class DepartmentServiceTest {
     @Test
     void updateDepartment_Success() {
         when(departmentRepository.findById(1L)).thenReturn(Optional.of(department));
+        DepartmentUpdateRequest updateRequest = new DepartmentUpdateRequest("HR", "Updated Description", LocalDate.of(2021, 1, 1));
 
-        DepartmentDto updatedDto = departmentService.update(1L, departmentDto);
+        DepartmentDto updatedDto = departmentService.update(1L, updateRequest);
 
-        assertThat(updatedDto).isNotNull();
-        assertThat(updatedDto.name()).isEqualTo("HR");
-        verify(departmentRepository, times(1)).findById(1L);
+        assertThat(updatedDto).isNotNull()
+                .extracting(DepartmentDto::name, DepartmentDto::description)
+                .containsExactly("HR", "Updated Description");
+        verify(departmentRepository).findById(1L);
     }
 
     @Test
     void updateDepartment_Fail_NotFound() {
         when(departmentRepository.findById(1L)).thenReturn(Optional.empty());
+        DepartmentUpdateRequest updateRequest = new DepartmentUpdateRequest("HR", "Updated Description", LocalDate.of(2021, 1, 1));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> departmentService.update(1L, departmentDto));
+                () -> departmentService.update(1L, updateRequest));
 
-        assertThat(exception.getMessage()).isEqualTo("해당 ID의 부서가 존재하지 않습니다.");
-
-
+        assertThat(exception.getMessage()).isEqualTo("부서를 찾을 수 없습니다.");
     }
 
-
-
     @Test
-    void updateDepartment_Success_UpdateNameOnly() {  // 서비스 메서드에서 동작 코드 넣고 실핼되는지 확인
+    void updateDepartment_Success_UpdateNameOnly() {
         when(departmentRepository.findById(1L)).thenReturn(Optional.of(department));
         when(departmentRepository.findByName("New HR")).thenReturn(Optional.empty());
 
-        DepartmentDto updateDto = new DepartmentDto(1L, "New HR", "Human Resources", LocalDate.of(2020, 1, 1));
+        DepartmentUpdateRequest updateRequest = new DepartmentUpdateRequest("New HR", null, null);
+        DepartmentDto updatedDto = departmentService.update(1L, updateRequest);
 
-        DepartmentDto updatedDto = departmentService.update(1L, updateDto);
-
-        assertThat(updatedDto).isNotNull();
-        assertThat(updatedDto.name()).isEqualTo("New HR");
-        assertThat(updatedDto.description()).isEqualTo("Human Resources");
+        assertThat(updatedDto).isNotNull().extracting(DepartmentDto::name).isEqualTo("New HR");
     }
 
     @Test
     void updateDepartment_Success_UpdateDescriptionOnly() {
         when(departmentRepository.findById(1L)).thenReturn(Optional.of(department));
+        DepartmentUpdateRequest updateRequest = new DepartmentUpdateRequest(null, "New Description", null);
 
-        DepartmentDto updateDto = new DepartmentDto(1L, "HR", "New Description", LocalDate.of(2020, 1, 1));
+        DepartmentDto updatedDto = departmentService.update(1L, updateRequest);
 
-        DepartmentDto updatedDto = departmentService.update(1L, updateDto);
-
-        assertThat(updatedDto).isNotNull();
-        assertThat(updatedDto.description()).isEqualTo("New Description");
+        assertThat(updatedDto).isNotNull().extracting(DepartmentDto::description).isEqualTo("New Description");
     }
 
     @Test
     void updateDepartment_Success_UpdateEstablishedDateOnly() {
         when(departmentRepository.findById(1L)).thenReturn(Optional.of(department));
+        DepartmentUpdateRequest updateRequest = new DepartmentUpdateRequest(null, null, LocalDate.of(2025, 1, 1));
 
-        DepartmentDto updateDto = new DepartmentDto(1L, "HR", "Human Resources", LocalDate.of(2025, 1, 1));
+        DepartmentDto updatedDto = departmentService.update(1L, updateRequest);
 
-        DepartmentDto updatedDto = departmentService.update(1L, updateDto);
-
-        assertThat(updatedDto).isNotNull();
-        assertThat(updatedDto.establishedDate()).isEqualTo(LocalDate.of(2025, 1, 1));
+        assertThat(updatedDto).isNotNull().extracting(DepartmentDto::establishedDate).isEqualTo(LocalDate.of(2025, 1, 1));
     }
 }
