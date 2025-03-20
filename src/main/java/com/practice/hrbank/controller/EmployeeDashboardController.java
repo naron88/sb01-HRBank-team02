@@ -23,7 +23,7 @@ public class EmployeeDashboardController {
   ResponseEntity<List<EmployeeTrendDto>> getEmployeeTrend(
       @RequestParam(required = false) LocalDate from,
       @RequestParam(required = false) LocalDate to,
-      @RequestParam(defaultValue = "month") String unit
+      @RequestParam(required = false, defaultValue = "month") String unit
   ) {
     List<EmployeeTrendDto> employeeTrendDtoList = dashboardService.getEmployeeTrend(from, to, unit);
     return ResponseEntity.ok(employeeTrendDtoList);
@@ -31,20 +31,20 @@ public class EmployeeDashboardController {
 
   @GetMapping("/stats/distribution")
   ResponseEntity<List<EmployeeDistributionDto>> getEmployeeDistribution(
-      @RequestParam(defaultValue = "department") String department,
-      @RequestParam(defaultValue = "ACTIVE") String active
+      @RequestParam(defaultValue = "department") String groupBy,
+      @RequestParam(defaultValue = "ACTIVE") String status
   ) {
-    List<EmployeeDistributionDto> employeeDistributionDtoList = dashboardService.getEmployeeDistribution(department, active);
+    List<EmployeeDistributionDto> employeeDistributionDtoList = dashboardService.getEmployeeDistribution(groupBy, status);
     return ResponseEntity.ok(employeeDistributionDtoList);
   }
 
   @GetMapping("/count")
-  ResponseEntity<Long> countEmployees(
+  ResponseEntity<Integer> countEmployees(
       @RequestParam(required = false) String status,
       @RequestParam(required = false) LocalDate fromDate,
       @RequestParam(required = false) LocalDate toDate
   ) {
-    Long count = dashboardService.countEmployees(status, fromDate, toDate);
+    int count = dashboardService.countEmployees(status, fromDate, toDate);
     return ResponseEntity.ok(count);
   }
 }

@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 @Entity
-@Table(name ="department")
+@Table(name = "department")
 @Getter
 @NoArgsConstructor
 public class Department {
@@ -34,10 +34,27 @@ public class Department {
     @Column(nullable = false)
     private LocalDate establishedDate;
 
-    public Department(String name, String description, LocalDate establishedDate) {
+    @Column(nullable = false)
+    private int employeeCount;
+
+    public Department(String name, String description, LocalDate establishedDate, int employeeCount) {
         this.name = name;
         this.description = description;
         this.establishedDate = establishedDate;
+        this.employeeCount = employeeCount;
+
     }
 
+
+    public void update(String name, String description, LocalDate establishedDate) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (description != null) {
+            this.description = description;
+        }
+        if (establishedDate != null) {
+            this.establishedDate = establishedDate;
+        }
+    }
 }

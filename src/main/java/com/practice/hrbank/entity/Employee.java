@@ -1,8 +1,11 @@
 package com.practice.hrbank.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,6 +16,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.time.LocalDate;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -22,7 +26,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @Table(name = "employees")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class Employee {
 
@@ -40,7 +44,7 @@ public class Employee {
   @Column(nullable = false, length = 20)
   private String name;
 
-  @Column(nullable = false)
+  @Column(nullable = false, unique = true)
   private String email;
 
   @Column(nullable = false)
@@ -52,9 +56,10 @@ public class Employee {
   @Column(nullable = false)
   private LocalDate hireDate;
 
+  @Enumerated(EnumType.STRING)
   private Status status;
 
-  @OneToOne(fetch = FetchType.LAZY)
+  @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
   @JoinColumn(name = "metadata_id")
   private Metadata profileImage;
 
@@ -75,8 +80,57 @@ public class Employee {
     this.employeeNumber = employeeNumber;
     this.position = position;
     this.hireDate = hireDate;
+    this.status = Status.ACTIVE;
 
     this.profileImage = profileImage;
     this.department = department;
+  }
+
+  public void updateName(String newName) {
+    if (this.name.equals(newName)) {
+        return;
+    }
+    this.name = newName;
+  }
+
+  public void updateEmail(String newEmail) {
+    if (this.email.equals(newEmail)) {
+      return;
+    }
+    this.email = newEmail;
+  }
+
+  public void updatePosition(String newPosition) {
+    if (this.position.equals(newPosition)) {
+      return;
+    }
+    this.position = newPosition;
+  }
+
+  public void updateDepartment(Department newDepartment) {
+    if (this.department.getId().equals(newDepartment.getId())) {
+      return;
+    }
+    this.department = newDepartment;
+  }
+
+  public void updateProfile(Metadata newProfileImage) {
+    if (this.profileImage.getId().equals(newProfileImage.getId())) {
+      return;
+    }
+    this.profileImage = newProfileImage;
+  }
+
+  public void updateStatus(Status newStatus) {
+    if (this.status.equals(newStatus)) {
+      return;
+    }
+    this.status = newStatus;
+  }
+
+  public void validateDuplicateEmail(String email) {
+    if (this.email.equals(email)) {
+      throw new IllegalArgumentException("Email must be unique");
+    }
   }
 }
