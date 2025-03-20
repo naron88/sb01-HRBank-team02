@@ -39,12 +39,14 @@ public class EmployeeService {
   private final DepartmentRepository departmentRepository;
 
   @Transactional
-  public EmployeeDto create(EmployeeCreateRequest request, MultipartFile file, String ipAddress) throws IOException {
+  public EmployeeDto create(EmployeeCreateRequest request, MultipartFile file, String ipAddress)
+      throws IOException {
     validateDuplicateEmail(request.email());
 
     Metadata profile = file != null ? metadataService.createProfile(file) : null;
     Department department = departmentRepository.findById(request.departmentId())
-        .orElseThrow(() -> new NoSuchElementException("Department with id " + request.departmentId() + " not found"));
+        .orElseThrow(() -> new NoSuchElementException(
+            "Department with id " + request.departmentId() + " not found"));
     String employeeNumber = generateEmployeeNumber();
 
     Employee employee = new Employee(
@@ -59,11 +61,11 @@ public class EmployeeService {
 
     EmployeeDto employeeDto = employeeMapper.toDto(employeeRepository.save(employee));
     ChangeLogCreateRequest changeLogCreateRequest = new ChangeLogCreateRequest(
-      null,
-      employeeDto,
-      ipAddress,
-      request.memo(),
-      Type.CREATED
+        null,
+        employeeDto,
+        ipAddress,
+        request.memo(),
+        Type.CREATED
     );
     changeLogService.save(changeLogCreateRequest);
 
@@ -71,7 +73,8 @@ public class EmployeeService {
   }
 
   @Transactional(readOnly = true)
-  public CursorPageResponseEmployeeDto<EmployeeDto> searchEmployee(String nameOrEmail, String employeeNumber, String departmentName,
+  public CursorPageResponseEmployeeDto<EmployeeDto> searchEmployee(String nameOrEmail,
+      String employeeNumber, String departmentName,
       String position, LocalDate hireDateFrom, LocalDate hireDateTo, Employee.Status status,
       Long idAfter, String cursor, Integer size, String sortField, String sortDirection) {
 
@@ -108,7 +111,8 @@ public class EmployeeService {
   }
 
   @Transactional
-  public EmployeeDto update(Long id, EmployeeUpdateRequest request, MultipartFile file, String ipAddress) throws IOException {
+  public EmployeeDto update(Long id, EmployeeUpdateRequest request, MultipartFile file,
+      String ipAddress) throws IOException {
     Employee employee = employeeRepository.findById(id)
         .orElseThrow(() -> new NoSuchElementException("Employee with id " + id + " not found"));
     Department department = departmentRepository.findById(request.departmentId())
@@ -167,7 +171,8 @@ public class EmployeeService {
       return "EMP-" + currentYear + "-001";
     }
 
-    int lastNumber = Integer.parseInt(lastEmployeeNumber.substring(lastEmployeeNumber.length() - 3));
+    int lastNumber = Integer.parseInt(
+        lastEmployeeNumber.substring(lastEmployeeNumber.length() - 3));
     int newNumber = lastNumber + 1;
 
     return String.format("EMP-%d-%03d", currentYear, newNumber);
