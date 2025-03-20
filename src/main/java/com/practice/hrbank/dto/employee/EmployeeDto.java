@@ -11,7 +11,7 @@ public record EmployeeDto(
     Long departmentId,
     String departmentName,
     String position,
-    LocalDate hireData,
+    LocalDate hireDate,
     Employee.Status status,
     Long profileImageId
 ) {

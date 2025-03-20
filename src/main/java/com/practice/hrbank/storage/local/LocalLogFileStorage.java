@@ -7,21 +7,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.Instant;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
 @ConditionalOnProperty(name = "hrbank.storage.type", havingValue = "local")
-public class LogFileStorage {
+public class LocalLogFileStorage {
 
   private final Path root;
 
-  public LogFileStorage(@Value("${hrbank.storage.local.paths.error-log-path}") String root) throws IOException{
+  public LocalLogFileStorage(@Value("${hrbank.storage.local.paths.error-log-path}") String root) {
     this.root = Paths.get(root);
-    if (Files.notExists(this.root)) {
-      Files.createDirectory(this.root);
-    }
   }
 
   @PostConstruct
@@ -29,17 +27,12 @@ public class LogFileStorage {
     Files.createDirectories(root);
   }
 
-  public Path createLogFile(String fileName) throws IOException {
-    Path logFilePath = Paths.get(String.valueOf(root), fileName);
-    if (Files.exists(logFilePath)) {
-      Files.delete(logFilePath);
-    }
-    return Files.createFile(logFilePath);
-  }
-  public void writeErrorToFile(Path logFilePath, String errorMessage) throws IOException {
-    try (BufferedWriter writer = Files.newBufferedWriter(logFilePath, StandardOpenOption.APPEND)) {
+  public Long createFile(Instant time, String errorMessage) throws IOException{
+    Path logFilePath = root.resolve(time.toString().replace(":", "-") + ".log");
+    try (BufferedWriter writer = Files.newBufferedWriter(logFilePath, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
       writer.write("Error: " + errorMessage);
       writer.newLine();
     }
+    return Files.size(logFilePath);
   }
 }

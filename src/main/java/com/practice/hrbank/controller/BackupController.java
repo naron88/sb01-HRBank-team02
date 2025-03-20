@@ -53,6 +53,7 @@ public class BackupController {
       @RequestParam(required = false) String status
   ) {
     BackupDto backup = backupService.findLatest(status);
+
     return ResponseEntity.ok(backup);
   }
 

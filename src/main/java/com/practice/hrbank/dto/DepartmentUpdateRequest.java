@@ -1,14 +1,10 @@
 package com.practice.hrbank.dto;
 
-
 import java.time.LocalDate;
 
-
-public record   DepartmentDto(
-        Long id,
+public record DepartmentUpdateRequest(
         String name,
         String description,
-        LocalDate establishedDate,
-        int employeeCount
+        LocalDate establishedDate
 ) {
 }
