@@ -27,7 +27,7 @@ public class Department {
     @LastModifiedDate
     private Instant updatedAt;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 100, unique = true)
     private String name;
 
     @Column(length = 500)
@@ -36,9 +36,37 @@ public class Department {
     @Column(nullable = false)
     private LocalDate establishedDate;
 
-    public Department(String name, String description, LocalDate establishedDate) {
+    @Column(nullable = false)
+    private int employeeCount;
+
+    public Department(String name, String description, LocalDate establishedDate, int employeeCount) {
         this.name = name;
         this.description = description;
         this.establishedDate = establishedDate;
+        this.employeeCount = employeeCount;
     }
+
+    public Department(Long id, String name, String description, LocalDate establishedDate, int employeeCount) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.establishedDate = establishedDate;
+        this.employeeCount = employeeCount;
+    }
+
+    public void update(String name, String description, LocalDate establishedDate) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (description != null) {
+            this.description = description;
+        }
+        if (establishedDate != null) {
+            this.establishedDate = establishedDate;
+        }
+
+        // 이름, 설명, 설립일을 각각 하나씩 수정할 수 있도록 변경함
+        // description만 수정하는 경우, name과 establishedDate는 기존 값을 유지
+    }
+
 }
