@@ -1,9 +1,11 @@
 package com.practice.hrbank.service;
 
+import com.practice.hrbank.dto.changeLog.ChangeLogCreateRequest;
 import com.practice.hrbank.dto.employee.CursorPageResponseEmployeeDto;
 import com.practice.hrbank.dto.employee.EmployeeCreateRequest;
 import com.practice.hrbank.dto.employee.EmployeeDto;
 import com.practice.hrbank.dto.employee.EmployeeUpdateRequest;
+import com.practice.hrbank.entity.ChangeLog.Type;
 import com.practice.hrbank.entity.Department;
 import com.practice.hrbank.entity.Employee;
 import com.practice.hrbank.entity.Metadata;
@@ -55,11 +57,17 @@ public class EmployeeService {
         department
     );
 
-    // TODO: 변경 이력도 생성
-
-    return employeeMapper.toDto(
-        employeeRepository.save(employee)
+    EmployeeDto employeeDto = employeeMapper.toDto(employeeRepository.save(employee));
+    ChangeLogCreateRequest changeLogCreateRequest = new ChangeLogCreateRequest(
+      null,
+      employeeDto,
+      ipAddress,
+      request.memo(),
+      Type.CREATED
     );
+    changeLogService.save(changeLogCreateRequest);
+
+    return employeeDto;
   }
 
   @Transactional(readOnly = true)

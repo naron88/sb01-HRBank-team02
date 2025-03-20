@@ -1,9 +1,9 @@
-package com.practice.hrbank.dto;
+package com.practice.hrbank.dto.changeLog;
 
 import com.practice.hrbank.dto.employee.EmployeeDto;
 import com.practice.hrbank.entity.ChangeLog;
 
-public record DepartmentCreateRequest(
+public record ChangeLogCreateRequest(
         EmployeeDto beforeEmployeeDto,
         EmployeeDto afterEmployeeDto,
         String ipAddress,
