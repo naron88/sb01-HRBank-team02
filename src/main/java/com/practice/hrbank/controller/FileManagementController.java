@@ -1,6 +1,8 @@
 package com.practice.hrbank.controller;
 
+import com.practice.hrbank.entity.Backup;
 import com.practice.hrbank.entity.Metadata;
+import com.practice.hrbank.repository.BackupRepository;
 import com.practice.hrbank.service.MetadataService;
 import com.practice.hrbank.storage.EmployeesStorage;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class FileManagementController {
 
   private final MetadataService metadataService;
+  private final BackupRepository backupRepository;
   private final EmployeesStorage employeesStorage;
 
   @GetMapping("/{id}/download")
   public ResponseEntity<?> download(
-    @PathVariable("id") Long metadataId) {
-    Metadata metadata = metadataService.findById(metadataId);
-    return employeesStorage.download(metadata);
+    @PathVariable("id") Long backupId) {
+    return employeesStorage.download(backupId);
   }
 }
