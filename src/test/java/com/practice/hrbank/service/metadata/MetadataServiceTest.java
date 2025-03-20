@@ -1,35 +1,34 @@
 package com.practice.hrbank.service.metadata;
 
+import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.practice.hrbank.entity.Department;
+import com.practice.hrbank.entity.Employee;
+import com.practice.hrbank.entity.Employee.Status;
 import com.practice.hrbank.entity.Metadata;
+import com.practice.hrbank.repository.EmployeeRepository;
 import com.practice.hrbank.repository.MetadataRepository;
 import com.practice.hrbank.service.MetadataService;
 import com.practice.hrbank.storage.BinaryContentStorage;
 import com.practice.hrbank.storage.EmployeesStorage;
-import com.practice.hrbank.storage.local.LogFileStorage;
+import com.practice.hrbank.storage.local.LocalLogFileStorage;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,13 +43,16 @@ class MetadataServiceTest {
   private MetadataRepository metadataRepository;
 
   @Mock
+  private EmployeeRepository employeeRepository;
+
+  @Mock
   private BinaryContentStorage binaryContentStorage;
 
   @Mock
   private EmployeesStorage employeesStorage;
 
   @Mock
-  private LogFileStorage logFileStorage;
+  private LocalLogFileStorage localLogFileStorage;
 
   @Test
   void createProfile_Success() throws IOException {
@@ -67,47 +69,54 @@ class MetadataServiceTest {
     // then
     assertNotNull(result);
     assertEquals(profile.getName(), result.getName());
-    verify(binaryContentStorage, times(1)).put(any(), any());
+    verify(binaryContentStorage, times(1)).createFile(any(), any());
     verify(metadataRepository, times(1)).save(any(Metadata.class));
   }
 
   @Test
   void createEmployeesFile_Success() throws IOException {
-    // given
-    Long backupId = 1L;
+    // given - 테스트 할 때만 Employee 생성자를 바꾸고 했습니다.
+    Employee emp1 = new Employee(1L, "test", "test@gmail.com", "12", "Manager", LocalDate.now(),
+        new Metadata("test", "test", 1L), new Department("test", "test", LocalDate.now()),
+        Status.ACTIVE);
+    Employee emp2 = new Employee(2L, "test2", "test2@gmail.com", "122", "Manager2", LocalDate.now(),
+        new Metadata("test2", "test2", 2L), new Department("test2", "test2", LocalDate.now()),
+        Status.ACTIVE);
+    List<Employee> employees = asList(emp1, emp2);
+    Long backupId = 3L;
+    Long fileSize = 1024L;
 
     // when
-    when(employeesStorage.save(backupId)).thenReturn(anyLong());
+    when(employeeRepository.findAll()).thenReturn(employees);
+    when(employeesStorage.save(backupId, employees)).thenReturn(fileSize);
     Metadata result = metadataService.createEmployeesFile(backupId);
 
     // then
     assertNotNull(result);
-    verify(employeesStorage, times(1)).save(backupId);
+    assertEquals("employee_backup_" + backupId, result.getName());
+    assertEquals("text/csv", result.getContentType());
+    assertEquals(fileSize, result.getSize());
+    verify(employeeRepository, times(1)).findAll();  // Ensure that findAll was called
+    verify(employeesStorage, times(1)).save(backupId, employees);
   }
 
   @Test
   void createErrorLogFile_Success() throws IOException {
     // given
     Instant time = Instant.now();
-    String name = "backup_error_" + time.toString();
-    String errorMessage = "Test error message";
-    Path mockPath = mock(Path.class);
+    String errorMessage = "error test";
+    long mockedFileSize = 1024L;  // Mocked file size
 
-    try (MockedStatic<Files> mockedFiles = mockStatic(Files.class)) {
-      // when
-      when(logFileStorage.createLogFile(name)).thenReturn(mockPath);
-      doNothing().when(logFileStorage).writeErrorToFile(mockPath, errorMessage);
-      mockedFiles.when(() -> Files.size(mockPath)).thenReturn(1024L);
+    // when
+    when(localLogFileStorage.createFile(time, errorMessage)).thenReturn(mockedFileSize);
+    Metadata result = metadataService.createErrorLogFile(time, errorMessage);
 
-      Metadata metadata = metadataService.createErrorLogFile(time, errorMessage);
-
-      // then
-      assertEquals(name, metadata.getName());
-      assertEquals("text/log", metadata.getContentType());
-      assertEquals(1024L, metadata.getSize());
-      verify(logFileStorage).createLogFile(name);
-      verify(logFileStorage).writeErrorToFile(mockPath, errorMessage);
-    }
+    // then
+    assertNotNull(result);
+    assertEquals(time.toString(), result.getName());
+    assertEquals("text/log", result.getContentType());
+    assertEquals(mockedFileSize, result.getSize());
+    verify(localLogFileStorage, times(1)).createFile(time, errorMessage);
   }
 
   @Test
