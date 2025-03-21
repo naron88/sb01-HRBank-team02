@@ -1,16 +1,23 @@
 package com.practice.hrbank.service;
 
+import com.practice.hrbank.dto.department.DepartmentCreateRequest;
 import com.practice.hrbank.dto.department.DepartmentDto;
 import com.practice.hrbank.dto.department.DepartmentUpdateRequest;
 import com.practice.hrbank.entity.Department;
 import com.practice.hrbank.repository.DepartmentRepository;
 import com.practice.hrbank.repository.EmployeeRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DepartmentService {
@@ -23,41 +30,73 @@ public class DepartmentService {
         this.employeeRepository = employeeRepository;
     }
 
-    public List<DepartmentDto> findAll() {
-        return null;
+    public DepartmentDto findById(Long id) {
+        Department department = departmentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("부서를 찾을 수 없습니다."));
+
+        // 해당 부서의 직원 수를 동적으로 계산
+        int employeeCount = employeeRepository.countByDepartmentId(id);
+
+        return new DepartmentDto(
+                department.getId(),
+                department.getName(),
+                department.getDescription(),
+                department.getEstablishedDate(),
+                employeeCount
+        );
     }
 
+    public List<DepartmentDto> findAll(String nameOrDescription, String sortBy, Long lastId, int pageSize) {
+        Pageable pageable = PageRequest.of(
+                0, // 페이지 번호 (0부터 시작)
+                pageSize, // 한 페이지 크기
+                Sort.by(Sort.Order.asc(sortBy)) // 정렬 기준
+        );
+
+        Page<Department> departmentPage = departmentRepository.findByNameContainingOrDescriptionContaining(
+                nameOrDescription, nameOrDescription, pageable
+        );
+
+        return departmentPage.stream()
+                .map(department -> {
+                    int employeeCount = employeeRepository.countByDepartmentId(department.getId());
+                    return new DepartmentDto(
+                            department.getId(),
+                            department.getName(),
+                            department.getDescription(),
+                            department.getEstablishedDate(),
+                            employeeCount
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+
     @Transactional
-    public DepartmentDto create(DepartmentDto departmentDTO) {
-        if (departmentRepository.existsByName(departmentDTO.name())) {
+    public DepartmentDto create(DepartmentCreateRequest departmentCreateRequest) {
+        if (departmentRepository.existsByName(departmentCreateRequest.name())) {
             throw new IllegalArgumentException("부서 중복");
         }
 
         Department department = new Department(
-                departmentDTO.name(),
-                departmentDTO.description(),
-                departmentDTO.establishedDate(),
-                0
+                departmentCreateRequest.name(),
+                departmentCreateRequest.description(),
+                departmentCreateRequest.establishedDate()
         );
 
         Department savedDepartment = departmentRepository.save(department);
+
+        int employeeCount = employeeRepository.countByDepartmentId(savedDepartment.getId());
 
         return new DepartmentDto(
                 savedDepartment.getId(),
                 savedDepartment.getName(),
                 savedDepartment.getDescription(),
                 savedDepartment.getEstablishedDate(),
-                savedDepartment.getEmployeeCount()
-
+                employeeCount
         );
     }
 
-    public DepartmentDto findById(Long id) {
-        return null;
-    }
-
-    public void delete(Long id) {
-    }
 
     public DepartmentDto update(Long id, DepartmentUpdateRequest departmentUpdateRequest) {
 
@@ -76,18 +115,20 @@ public class DepartmentService {
         // null이 아닌 값만 업데이트
         department.update(departmentUpdateRequest.name(), departmentUpdateRequest.description(), departmentUpdateRequest.establishedDate());
 
+        int employeeCount = employeeRepository.countByDepartmentId(department.getId());
+
         return new DepartmentDto(
                 department.getId(),
                 department.getName(),
                 department.getDescription(),
                 department.getEstablishedDate(),
-                department.getEmployeeCount()
+                employeeCount
 
         );
     }
 
     @Transactional
-    public boolean deleteDepartmentCheck(Long departmentId) {
+    public boolean delete(Long departmentId) {
         if (employeeRepository.existsByDepartmentId(departmentId)) {
             return false;
         }
