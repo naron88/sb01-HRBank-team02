@@ -50,7 +50,7 @@ public class EmployeeService {
     Department department = departmentRepository.findById(request.departmentId())
         .orElseThrow(() -> new NoSuchElementException(
             "Department with id " + request.departmentId() + " not found"));
-    String employeeNumber = generateEmployeeNumber();
+    String employeeNumber = generateEmployeeNumber(request.hireDate());
 
     Employee employee = new Employee(
         request.name(),
@@ -178,9 +178,9 @@ public class EmployeeService {
     employeeRepository.deleteById(id);
   }
 
-  public String generateEmployeeNumber() {
-    int currentYear = LocalDate.now().getYear();
-    String yearPrefix = String.format("EMP-%d-", currentYear); // 'EMP-2025-' 형식으로 생성
+  public String generateEmployeeNumber(LocalDate hireDate) {
+    int hireYear = hireDate.getYear();
+    String yearPrefix = String.format("EMP-%d-", hireYear);
 
     Optional<String> lastEmployeeNumber = employeeRepository.findLatestEmployeeNumberByYear(yearPrefix + "%");
 
