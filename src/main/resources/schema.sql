@@ -35,7 +35,7 @@ CREATE TABLE backups
     worker      VARCHAR(50) NOT NULL,
     started_at  TIMESTAMP   NOT NULL,
     ended_at    TIMESTAMP,
-    status      VARCHAR(20) NOT NULL CHECK (status IN ('IN_PROGRESS', 'COMPLETED', 'SKIPPED', 'FAILED')),
+    status      VARCHAR(20) NOT NULL CHECK (status IN ('CREATED', 'UPDATED', 'DELETED')),
     CONSTRAINT fk_backup_metadata FOREIGN KEY (metadata_id) REFERENCES metadata (id)
 );
 

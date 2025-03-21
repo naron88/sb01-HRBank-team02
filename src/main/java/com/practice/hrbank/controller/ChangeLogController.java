@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.function.EntityResponse;
 
 import java.util.List;
 
@@ -22,11 +23,30 @@ public class ChangeLogController {
     @Operation(summary = "Get 메서드 예제", description = "기본 전체 조회")
     @GetMapping()
     public ResponseEntity<CursorPageResponseChangeLogDto> search(
-            @Parameter(description = "DTO", required = true) @ModelAttribute ChangeLogRequestDto changeLogRequestDto) {
+            @RequestParam(value = "employeeNumber", required = false) String employeeNumber,
+            @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "memo", required = false) String memo,
+            @RequestParam(value = "ipAddress", required = false) String ipAddress,
+            @RequestParam(value = "atFrom", required = false) String atFrom,
+            @RequestParam(value = "atTo", required = false) String atTo,
+            @RequestParam(value = "idAfter", required = false) Long idAfter,
+            @RequestParam(value = "cursor", required = false) String cursor,
+            @RequestParam(value = "size", defaultValue = "10") Integer size,
+            @RequestParam(value = "sortField", defaultValue = "at") String sortField,
+            @RequestParam(value = "sortDirection", defaultValue = "desc") String sortDirection) {
 
-        changeLogsService.getChangeLogs(changeLogRequestDto);
+        ChangeLogRequestDto changeLogRequestDto = new ChangeLogRequestDto(
+                employeeNumber, type, memo, ipAddress, atFrom, atTo,
+                idAfter != null ? idAfter : null,
+                cursor,
+                size,
+                sortField,
+                sortDirection
+        );
 
-        return null;
+        CursorPageResponseChangeLogDto changeLogs = changeLogsService.getChangeLogs(changeLogRequestDto);
+        return ResponseEntity.ok(changeLogs);
+
     }
 
     @GetMapping("/{id}/diffs")

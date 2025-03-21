@@ -27,13 +27,12 @@ public class ChangeLogService {
     private final ObjectMapper objectMapper;
 
     public CursorPageResponseChangeLogDto getChangeLogs(ChangeLogRequestDto requestDto) {
-        int size = (requestDto.size() != null) ? Integer.parseInt(requestDto.size()) : 10;
         String sortField = (requestDto.sortField() != null) ? requestDto.sortField() : "at";
         String sortDirection = (requestDto.sortDirection() != null) ? requestDto.sortDirection() : "desc";
 
         // 정렬 방식 설정
         Sort.Direction direction = sortDirection.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Pageable pageable = PageRequest.of(0, size, Sort.by(direction, sortField));
+        Pageable pageable = PageRequest.of(0, requestDto.size(), Sort.by(direction, sortField));
 
         // 필터링을 적용하여 데이터 조회
         Page<ChangeLog> changeLogs = changeLogRepository.findByFilters(
@@ -43,7 +42,7 @@ public class ChangeLogService {
                 requestDto.ipAddress(),
                 requestDto.atFrom(),
                 requestDto.atTo(),
-                requestDto.idAfter() != null ? Long.parseLong(requestDto.idAfter()) : null,
+                requestDto.idAfter() != null ? requestDto.idAfter() : null,
                 pageable
         );
 
@@ -64,7 +63,7 @@ public class ChangeLogService {
         String nextCursor = hasNext ? Base64.getEncoder().encodeToString(String.valueOf(changeLogs.getContent().get(changeLogs.getContent().size() - 1).getId()).getBytes()) : null;
         String nextIdAfter = hasNext ? String.valueOf(changeLogs.getContent().get(changeLogs.getContent().size() - 1).getId()) : null;
 
-        return new CursorPageResponseChangeLogDto(content, nextCursor, nextIdAfter, size, (int) changeLogs.getTotalElements(), hasNext);
+        return new CursorPageResponseChangeLogDto(content, nextCursor, nextIdAfter, requestDto.size(), (int) changeLogs.getTotalElements(), hasNext);
     }
 
     public void save(ChangeLogCreateRequest changeLogCreateRequest) {
