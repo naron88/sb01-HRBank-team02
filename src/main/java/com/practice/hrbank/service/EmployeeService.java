@@ -1,9 +1,11 @@
 package com.practice.hrbank.service;
 
+import com.practice.hrbank.dto.changeLog.ChangeLogCreateRequest;
 import com.practice.hrbank.dto.employee.CursorPageResponseEmployeeDto;
 import com.practice.hrbank.dto.employee.EmployeeCreateRequest;
 import com.practice.hrbank.dto.employee.EmployeeDto;
 import com.practice.hrbank.dto.employee.EmployeeUpdateRequest;
+import com.practice.hrbank.entity.ChangeLog.Type;
 import com.practice.hrbank.entity.Department;
 import com.practice.hrbank.entity.Employee;
 import com.practice.hrbank.entity.Metadata;
@@ -37,14 +39,16 @@ public class EmployeeService {
   private final DepartmentRepository departmentRepository;
 
   @Transactional
-  public EmployeeDto create(EmployeeCreateRequest request, MultipartFile file, String ipAddress) throws IOException {
+  public EmployeeDto create(EmployeeCreateRequest request, MultipartFile file, String ipAddress)
+      throws IOException {
     validateDuplicateEmail(request.email());
 
     Metadata profile = file != null ? metadataService.createProfile(file) : null;
     Department department = departmentRepository.findById(request.departmentId())
-        .orElseThrow(() -> new NoSuchElementException("Department with id " + request.departmentId() + " not found"));
+        .orElseThrow(() -> new NoSuchElementException(
+            "Department with id " + request.departmentId() + " not found"));
     String employeeNumber = generateEmployeeNumber();
-    
+
     Employee employee = new Employee(
         request.name(),
         request.email(),
@@ -55,15 +59,22 @@ public class EmployeeService {
         department
     );
 
-    // TODO: 변경 이력도 생성
-
-    return employeeMapper.toDto(
-        employeeRepository.save(employee)
+    EmployeeDto employeeDto = employeeMapper.toDto(employeeRepository.save(employee));
+    ChangeLogCreateRequest changeLogCreateRequest = new ChangeLogCreateRequest(
+        null,
+        employeeDto,
+        ipAddress,
+        request.memo(),
+        Type.CREATED
     );
+    changeLogService.save(changeLogCreateRequest);
+
+    return employeeDto;
   }
 
   @Transactional(readOnly = true)
-  public CursorPageResponseEmployeeDto<EmployeeDto> searchEmployee(String nameOrEmail, String employeeNumber, String departmentName,
+  public CursorPageResponseEmployeeDto<EmployeeDto> searchEmployee(String nameOrEmail,
+      String employeeNumber, String departmentName,
       String position, LocalDate hireDateFrom, LocalDate hireDateTo, Employee.Status status,
       Long idAfter, String cursor, Integer size, String sortField, String sortDirection) {
 
@@ -100,22 +111,24 @@ public class EmployeeService {
   }
 
   @Transactional
-  public EmployeeDto update(Long id, EmployeeUpdateRequest request, MultipartFile file, String ipAddress) throws IOException {
+  public EmployeeDto update(Long id, EmployeeUpdateRequest request, MultipartFile file,
+      String ipAddress) throws IOException {
     Employee employee = employeeRepository.findById(id)
         .orElseThrow(() -> new NoSuchElementException("Employee with id " + id + " not found"));
     Department department = departmentRepository.findById(request.departmentId())
-        .orElse(null);
+        .orElseThrow(() -> new NoSuchElementException(
+            "Department with id " + request.departmentId() + " not found"));
 
-    // TODO: 변경 먼저 생성
+    EmployeeDto beforeEmployeeDto = employeeMapper.toDto(employee);
 
-    // TODO: 유효성 검증 로직 추가
-    if (request.name() != null) {
+    if (request.name() != null && !request.name().isBlank()) {
       employee.updateName(request.name());
     }
-    if (request.email() != null) {
+    if ( request.email() != null && !request.email().isBlank()){
+      validateDuplicateEmail(request.email());
       employee.updateEmail(request.email());
     }
-    if (request.position() != null) {
+    if (request.position() != null && !request.position().isBlank()) {
       employee.updatePosition(request.position());
     }
     if (department != null) {
@@ -129,14 +142,33 @@ public class EmployeeService {
       employee.updateStatus(request.status());
     }
 
-    return employeeMapper.toDto(employee);
+    EmployeeDto afterEmployeeDto = employeeMapper.toDto(employee);
+    ChangeLogCreateRequest changeLogCreateRequest = new ChangeLogCreateRequest(
+        beforeEmployeeDto,
+        afterEmployeeDto,
+        ipAddress,
+        request.memo(),
+        Type.UPDATED
+    );
+    changeLogService.save(changeLogCreateRequest);
+
+    return afterEmployeeDto;
   }
 
   @Transactional
   public void delete(Long id, String ipAddress) {
-    if (!employeeRepository.existsById(id)) {
-      throw new NoSuchElementException("Employee with id " + id + " not found");
-    }
+    Employee employee = employeeRepository.findById(id)
+        .orElseThrow(() -> new NoSuchElementException("Employee with id " + id + " not found"));
+
+    EmployeeDto employeeDto = employeeMapper.toDto(employee);
+    ChangeLogCreateRequest changeLogCreateRequest = new ChangeLogCreateRequest(
+        employeeDto,
+        null,
+        ipAddress,
+        "직원 삭제",
+        Type.DELETED
+    );
+    changeLogService.save(changeLogCreateRequest);
 
     employeeRepository.deleteById(id);
   }
@@ -149,7 +181,8 @@ public class EmployeeService {
       return "EMP-" + currentYear + "-001";
     }
 
-    int lastNumber = Integer.parseInt(lastEmployeeNumber.substring(lastEmployeeNumber.length() - 3));
+    int lastNumber = Integer.parseInt(
+        lastEmployeeNumber.substring(lastEmployeeNumber.length() - 3));
     int newNumber = lastNumber + 1;
 
     return String.format("EMP-%d-%03d", currentYear, newNumber);
