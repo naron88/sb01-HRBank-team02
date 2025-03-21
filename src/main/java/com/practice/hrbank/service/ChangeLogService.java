@@ -146,13 +146,13 @@ public class ChangeLogService {
 
     public List<DiffDto> getDiffs(Long id) {
         ChangeLog changeLog = changeLogRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ChangeLog not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException());
 
         try {
             return objectMapper.readValue(changeLog.getDetail(),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, DiffDto.class));
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to parse detail JSON", e);
+            throw new RuntimeException();
         }
     }
 
