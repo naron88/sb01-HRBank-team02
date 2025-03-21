@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -179,17 +180,16 @@ public class EmployeeService {
 
   public String generateEmployeeNumber() {
     int currentYear = LocalDate.now().getYear();
-    String lastEmployeeNumber = employeeRepository.findLatestEmployeeNumberByYear(currentYear);
+    String yearPrefix = String.format("EMP-%d-", currentYear); // 'EMP-2025-' 형식으로 생성
 
-    if (lastEmployeeNumber == null) {
-      return "EMP-" + currentYear + "-001";
+    Optional<String> lastEmployeeNumber = employeeRepository.findLatestEmployeeNumberByYear(yearPrefix + "%");
+
+    if (lastEmployeeNumber.isEmpty()) {
+      return String.format("%s%03d", yearPrefix, 1);
     }
 
-    int lastNumber = Integer.parseInt(
-        lastEmployeeNumber.substring(lastEmployeeNumber.length() - 3));
-    int newNumber = lastNumber + 1;
-
-    return String.format("EMP-%d-%03d", currentYear, newNumber);
+    int lastNumber = Integer.parseInt(lastEmployeeNumber.get().substring(lastEmployeeNumber.get().lastIndexOf("-") + 1));
+    return String.format("%s%03d", yearPrefix, lastNumber + 1);
   }
 
   private String encodeCursor(Long id) {
