@@ -41,8 +41,6 @@ public class Department {
     @Column(nullable = false)
     private int employeeCount;
 
-    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Employee> employees = new ArrayList<>();
 
     public Department(String name, String description, LocalDate establishedDate, int employeeCount) {
         this.name = name;
@@ -50,10 +48,6 @@ public class Department {
         this.establishedDate = establishedDate;
         this.employeeCount = employeeCount;
 
-    }
-
-    public int getEmployeeCount() {
-        return employees.size();
     }
 
 

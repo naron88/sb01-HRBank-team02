@@ -1,8 +1,10 @@
 package com.practice.hrbank.controller;
 
+import com.practice.hrbank.dto.department.DepartmentCreateRequest;
 import com.practice.hrbank.dto.department.DepartmentDto;
 import com.practice.hrbank.dto.department.DepartmentUpdateRequest;
 import com.practice.hrbank.service.DepartmentService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +24,8 @@ public class DepartmentController {
     }
 
     @PostMapping
-    public ResponseEntity<DepartmentDto> createDepartment(@RequestBody DepartmentDto departmentDto) {
-        DepartmentDto createdDepartment = departmentService.create(departmentDto);
+    public ResponseEntity<DepartmentDto> createDepartment(@RequestBody DepartmentCreateRequest departmentCreateRequest) {
+        DepartmentDto createdDepartment = departmentService.create(departmentCreateRequest);
         return ResponseEntity.created(URI.create("/api/departments/" + createdDepartment.id()))
                 .body(createdDepartment);
     }
@@ -46,19 +48,18 @@ public class DepartmentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<DepartmentDto> getDepartmentById(@PathVariable Long id) {
-        return departmentService.findById(id)
-                .map(ResponseEntity::ok)  // 조회 성공 (200 OK)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build()); // 부서 없음 (404 Not Found)
+        try {
+            DepartmentDto departmentDto = departmentService.findById(id);
+            return ResponseEntity.ok(departmentDto);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     @GetMapping
-    public ResponseEntity<List<DepartmentDto>> getDepartments(
-            @RequestParam(required = false) String nameOrDescription,
-            @RequestParam(required = false, defaultValue = "name") String sortBy,
-            @RequestParam(required = false, defaultValue = "0") int pageSize) {
-
-        List<DepartmentDto> departmentDtos = departmentService.getDepartments(nameOrDescription, sortBy, null, pageSize);
-        return ResponseEntity.ok(departmentDtos);
+    public ResponseEntity<List<DepartmentDto>> getDepartments(@RequestParam(required = false) String nameOrDescription) {
+        List<DepartmentDto> departments = departmentService.findAll(nameOrDescription, "name", 0L, 0);
+        return ResponseEntity.ok(departments);
     }
 
 }

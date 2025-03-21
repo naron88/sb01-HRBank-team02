@@ -6,12 +6,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface DepartmentRepository extends JpaRepository<Department, Long> {
     boolean existsByName(String name);
     Optional<Department> findByName(String name);
-    Page<Department> findByDepartment(String name, String description, Pageable pageable);
+    // 부서 이름이나 설명으로 부분 일치 조회 + 페이지네이션 + 정렬
+    Page<Department> findByNameContainingOrDescriptionContaining(String name, String description, Pageable pageable);
+
 
 
 }

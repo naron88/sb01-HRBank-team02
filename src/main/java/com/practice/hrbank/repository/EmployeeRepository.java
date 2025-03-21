@@ -37,4 +37,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, Emplo
   // 부서에 소속된 직원이 있는지 확인
   boolean existsByDepartmentId(Long departmentId);
 
+  // id로 직원 수 조회
+  int countByDepartmentId(Long departmentId);
+
 }

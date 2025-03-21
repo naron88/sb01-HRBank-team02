@@ -1,5 +1,6 @@
 package com.practice.hrbank.service;
 
+import com.practice.hrbank.dto.department.DepartmentCreateRequest;
 import com.practice.hrbank.dto.department.DepartmentDto;
 import com.practice.hrbank.dto.department.DepartmentUpdateRequest;
 import com.practice.hrbank.entity.Department;
@@ -29,40 +30,58 @@ public class DepartmentService {
         this.employeeRepository = employeeRepository;
     }
 
-    public List<DepartmentDto> findAll() {
-        return null;
+    public DepartmentDto findById(Long id) {
+        Department department = departmentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("부서를 찾을 수 없습니다."));
+
+        // 해당 부서의 직원 수를 동적으로 계산
+        int employeeCount = employeeRepository.countByDepartmentId(id);
+
+        return new DepartmentDto(
+                department.getId(),
+                department.getName(),
+                department.getDescription(),
+                department.getEstablishedDate(),
+                employeeCount
+        );
     }
 
-    // 부서 목록 조회 
-    public List<DepartmentDto> getDepartments(String nameOrDescription, String sortBy, Long lastId, int pageSize) {
-        // Pageable 객체 생성 (정렬 및 페이지네이션)
-        Pageable pageable = PageRequest.of(0, pageSize, Sort.by(Sort.Order.asc(sortBy)));
+    public List<DepartmentDto> findAll(String nameOrDescription, String sortBy, Long lastId, int pageSize) {
+        Pageable pageable = PageRequest.of(
+                0, // 페이지 번호 (0부터 시작)
+                pageSize, // 한 페이지 크기
+                Sort.by(Sort.Order.asc(sortBy)) // 정렬 기준
+        );
 
-        // 이름 또는 설명으로 부분 일치 검색
-        Page<Department> departmentsPage = departmentRepository
-                .findByDepartment(nameOrDescription, nameOrDescription, pageable);
+        Page<Department> departmentPage = departmentRepository.findByNameContainingOrDescriptionContaining(
+                nameOrDescription, nameOrDescription, pageable
+        );
 
-
-        return departmentsPage.stream()
-                .map(department -> new DepartmentDto(
-                        department.getId(),
-                        department.getName(),
-                        department.getDescription(),
-                        department.getEstablishedDate(),
-                        department.getEmployeeCount()))
+        return departmentPage.stream()
+                .map(department -> {
+                    int employeeCount = employeeRepository.countByDepartmentId(department.getId());
+                    return new DepartmentDto(
+                            department.getId(),
+                            department.getName(),
+                            department.getDescription(),
+                            department.getEstablishedDate(),
+                            employeeCount
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
+
     @Transactional
-    public DepartmentDto create(DepartmentDto departmentDTO) {
-        if (departmentRepository.existsByName(departmentDTO.name())) {
+    public DepartmentDto create(DepartmentCreateRequest departmentCreateRequest) {
+        if (departmentRepository.existsByName(departmentCreateRequest.name())) {
             throw new IllegalArgumentException("부서 중복");
         }
 
         Department department = new Department(
-                departmentDTO.name(),
-                departmentDTO.description(),
-                departmentDTO.establishedDate(),
+                departmentCreateRequest.name(),
+                departmentCreateRequest.description(),
+                departmentCreateRequest.establishedDate(),
                 0
         );
 
@@ -74,19 +93,7 @@ public class DepartmentService {
                 savedDepartment.getDescription(),
                 savedDepartment.getEstablishedDate(),
                 savedDepartment.getEmployeeCount()
-
         );
-    }
-
-    public Optional<DepartmentDto> findById(Long id) {
-        return departmentRepository.findById(id)
-                .map(department -> new DepartmentDto(
-                        department.getId(),
-                        department.getName(),
-                        department.getDescription(),
-                        department.getEstablishedDate(),
-                        department.getEmployees().size()
-                ));
     }
 
 
