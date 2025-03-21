@@ -1,9 +1,9 @@
 package com.practice.hrbank.dto.backup;
 
-import org.springframework.data.domain.Page;
+import java.util.List;
 
 public record CursorPageResponseBackupDto(
-    Page<BackupDto> content,
+    List<BackupDto> content,
     String nextCursor,
     Long nextIdAfter,
     Integer size,
