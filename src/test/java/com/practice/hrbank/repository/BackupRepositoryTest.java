@@ -50,7 +50,7 @@ class BackupRepositoryTest {
 
   @Test
   void 특정_작업자_IP의_백업만_조회된다() {
-    String targetIp = "192.168.1.10"; // 🔥 원래 DB에 존재하는 IP
+    String targetIp = "192.168.1.10"; // DB에 존재하는 IP
 
     Specification<Backup> spec = (root, query, cb) ->
         cb.equal(root.get("worker"), targetIp);
@@ -63,7 +63,7 @@ class BackupRepositoryTest {
 
   @Test
   void 상태와_날짜_범위와_작업자가_일치하는_백업만_조회된다() {
-    Instant start = Instant.now().minusSeconds(86400); // 🔥 24시간 전
+    Instant start = Instant.now().minusSeconds(86400);
     Instant end = Instant.now();
     String targetIp = "192.168.1.30";
 
