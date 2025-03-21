@@ -15,14 +15,12 @@ import java.util.Optional;
 @Service
 public class DepartmentService {
 
-    @Autowired
     private final DepartmentRepository departmentRepository;
+    private final EmployeeRepository employeeRepository;
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
-
-    public DepartmentService(DepartmentRepository departmentRepository) {
+    public DepartmentService(DepartmentRepository departmentRepository, EmployeeRepository employeeRepository) {
         this.departmentRepository = departmentRepository;
+        this.employeeRepository = employeeRepository;
     }
 
     public List<DepartmentDto> findAll() {
@@ -88,17 +86,17 @@ public class DepartmentService {
         );
     }
 
-    public boolean hasEmployees(Long departmentId) {
-        return employeeRepository.existsByDepartmentId(departmentId); // 부서 ID로 직원 존재 여부 확인
-    }
-
-    // 부서 삭제
-    public boolean deleteDepartment(Long departmentId) {
-        Optional<Department> departmentOptional = departmentRepository.findById(departmentId);
-        if (departmentOptional.isPresent()) {
-            departmentRepository.delete(departmentOptional.get()); // 부서 삭제
-            return true;
+    @Transactional
+    public boolean deleteDepartmentCheck(Long departmentId) {
+        if (employeeRepository.existsByDepartmentId(departmentId)) {
+            return false;
         }
-        return false; // 부서가 없으면 삭제할 수 없음
+
+        return departmentRepository.findById(departmentId)
+                .map(department -> {
+                    departmentRepository.delete(department);
+                    return true;
+                })
+                .orElse(false);
     }
 }
