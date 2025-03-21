@@ -76,12 +76,10 @@ class MetadataServiceTest {
   @Test
   void createEmployeesFile_Success() throws IOException {
     // given - 테스트 할 때만 Employee 생성자를 바꾸고 했습니다.
-    Employee emp1 = new Employee(1L, "test", "test@gmail.com", "12", "Manager", LocalDate.now(),
-        new Metadata("test", "test", 1L), new Department("test", "test", LocalDate.now()),
-        Status.ACTIVE);
-    Employee emp2 = new Employee(2L, "test2", "test2@gmail.com", "122", "Manager2", LocalDate.now(),
-        new Metadata("test2", "test2", 2L), new Department("test2", "test2", LocalDate.now()),
-        Status.ACTIVE);
+    Employee emp1 = new Employee(1L, "test1", "test1@gmail.com", "E-1", "Manager", LocalDate.now(),
+        new Metadata("test1_profile", "impage/jpg", 1024L), new Department("IT", "IT 부서", LocalDate.now(), 1));
+    Employee emp2 = new Employee(2L, "test2", "test2@gmail.com", "E-2", "Manager", LocalDate.now(),
+        new Metadata("test2_profile", "impage/jpg", 2048L), new Department("마케팅", "마케팅 부서", LocalDate.now(), 2));
     List<Employee> employees = asList(emp1, emp2);
     Long backupId = 3L;
     Long fileSize = 1024L;
