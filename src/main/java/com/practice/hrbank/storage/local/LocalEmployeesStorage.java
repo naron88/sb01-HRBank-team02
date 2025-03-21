@@ -51,7 +51,15 @@ public class LocalEmployeesStorage implements EmployeesStorage {
 
   @Override
   public ResponseEntity<Resource> download(Metadata metadata) throws IOException {
-    Path filePath = root.resolve(metadata.getName());
+    String backupFileName = metadata.getName() + ".csv";
+    Path filePath = root.resolve(backupFileName);
+
+    // 파일이 존재하는지 확인
+    if (!Files.exists(filePath)) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .body(null);
+    }
+
     InputStream inputStream = Files.newInputStream(filePath);
     Resource resource = new InputStreamResource(inputStream);
 
