@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "change_logs")
@@ -34,7 +35,7 @@ public class ChangeLog {
     String ipAddress;
 
     @Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    Instant at;
+    LocalDateTime at;
 
     public ChangeLog(Type type, String employeeNumber, String detail, String memo, String ipAddress) {
         this.type = type;
@@ -42,7 +43,7 @@ public class ChangeLog {
         this.detail = detail;
         this.memo = memo;
         this.ipAddress = ipAddress;
-        this.at = Instant.now();
+        this.at = LocalDateTime.now();
     }
 
     public enum Type{

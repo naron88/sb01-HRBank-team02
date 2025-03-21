@@ -20,7 +20,7 @@ CREATE TABLE departments
 CREATE TABLE change_logs
 (
     id              BIGSERIAL                PRIMARY KEY,
-    type            VARCHAR(10)  NOT NULL CHECK (type IN ('IN_PROGRESS', 'COMPLETED', 'FAILED')),
+    type            VARCHAR(10)  NOT NULL CHECK (type IN ('CREATED', 'UPDATED', 'DELETED')),
     employee_number VARCHAR(30)  NOT NULL,
     detail          TEXT NOT NULL,
     memo            VARCHAR(255) NOT NULL DEFAULT '직원 정보 수정',
@@ -35,7 +35,7 @@ CREATE TABLE backups
     worker      VARCHAR(50) NOT NULL,
     started_at  TIMESTAMP   NOT NULL,
     ended_at    TIMESTAMP,
-    status      VARCHAR(20) NOT NULL CHECK (status IN ('CREATED', 'UPDATED', 'DELETED')),
+    status      VARCHAR(20) NOT NULL CHECK (status IN ('IN_PROGRESS', 'COMPLETED', 'FAILED', 'SKIPPED')),
     CONSTRAINT fk_backup_metadata FOREIGN KEY (metadata_id) REFERENCES metadata (id)
 );
 
