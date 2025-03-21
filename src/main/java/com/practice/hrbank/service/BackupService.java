@@ -99,17 +99,21 @@ public class BackupService {
       backups = backupRepository.findAll(spec, pageable);
     }
 
+    List<BackupDto> dtoList = backups.getContent()
+        .stream()
+        .map(backupMapper::toDto)
+        .toList();
+
     Long nextIdAfter = null;
     String nextCursor = null;
 
-    if (backups.hasContent()) {
-      List<Backup> content = backups.getContent();
-      nextIdAfter = content.get(content.size() - 1).getId();
+    if (!dtoList.isEmpty()) {
+      nextIdAfter = dtoList.get(dtoList.size() - 1).id(); // BackupDto의 id()
       nextCursor = encodeCursor(nextIdAfter);
     }
 
     return new CursorPageResponseBackupDto(
-        backups.map(backupMapper::toDto),
+        dtoList,
         nextCursor,
         nextIdAfter,
         backups.getSize(),
