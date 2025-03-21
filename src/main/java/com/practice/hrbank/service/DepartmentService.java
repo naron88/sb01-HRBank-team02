@@ -1,10 +1,12 @@
 package com.practice.hrbank.service;
 
-import com.practice.hrbank.dto.DepartmentDto;
-import com.practice.hrbank.dto.DepartmentUpdateRequest;
+import com.practice.hrbank.dto.department.DepartmentDto;
+import com.practice.hrbank.dto.department.DepartmentUpdateRequest;
 import com.practice.hrbank.entity.Department;
 import com.practice.hrbank.repository.DepartmentRepository;
+import com.practice.hrbank.repository.EmployeeRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,12 +14,14 @@ import java.util.Optional;
 
 @Service
 public class DepartmentService {
+
     private final DepartmentRepository departmentRepository;
+    private final EmployeeRepository employeeRepository;
 
-    public DepartmentService(DepartmentRepository departmentRepository) {
+    public DepartmentService(DepartmentRepository departmentRepository, EmployeeRepository employeeRepository) {
         this.departmentRepository = departmentRepository;
+        this.employeeRepository = employeeRepository;
     }
-
 
     public List<DepartmentDto> findAll() {
         return null;
@@ -44,27 +48,23 @@ public class DepartmentService {
                 savedDepartment.getDescription(),
                 savedDepartment.getEstablishedDate(),
                 savedDepartment.getEmployeeCount()
+
         );
     }
-
 
     public DepartmentDto findById(Long id) {
         return null;
     }
 
-
     public void delete(Long id) {
-
     }
-
 
     public DepartmentDto update(Long id, DepartmentUpdateRequest departmentUpdateRequest) {
 
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("부서를 찾을 수 없습니다."));
 
-
-        // 이름이 변경되는 경우에만 중복 검사 수행 <<
+        // 이름이 변경되는 경우에만 중복 검사 수행
         if (departmentUpdateRequest.name() != null && !departmentUpdateRequest.name().equals(department.getName())) {
             departmentRepository.findByName(departmentUpdateRequest.name())
                     .filter(existingDepartment -> !existingDepartment.getId().equals(id))
@@ -73,7 +73,7 @@ public class DepartmentService {
                     });
         }
 
-        // null이 아닌 값만 업데이트 <<
+        // null이 아닌 값만 업데이트
         department.update(departmentUpdateRequest.name(), departmentUpdateRequest.description(), departmentUpdateRequest.establishedDate());
 
         return new DepartmentDto(
@@ -82,6 +82,21 @@ public class DepartmentService {
                 department.getDescription(),
                 department.getEstablishedDate(),
                 department.getEmployeeCount()
+
         );
+    }
+
+    @Transactional
+    public boolean deleteDepartmentCheck(Long departmentId) {
+        if (employeeRepository.existsByDepartmentId(departmentId)) {
+            return false;
+        }
+
+        return departmentRepository.findById(departmentId)
+                .map(department -> {
+                    departmentRepository.delete(department);
+                    return true;
+                })
+                .orElse(false);
     }
 }

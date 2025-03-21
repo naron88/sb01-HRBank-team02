@@ -1,20 +1,19 @@
 package com.practice.hrbank.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "departments")
-@AllArgsConstructor
-@NoArgsConstructor
+@Table(name = "department")
 @Getter
+@NoArgsConstructor
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +26,7 @@ public class Department {
     @LastModifiedDate
     private Instant updatedAt;
 
-    @Column(nullable = false, length = 100, unique = true)
+    @Column(nullable = false, length = 100)
     private String name;
 
     @Column(length = 500)
@@ -44,15 +43,9 @@ public class Department {
         this.description = description;
         this.establishedDate = establishedDate;
         this.employeeCount = employeeCount;
+
     }
 
-    public Department(Long id, String name, String description, LocalDate establishedDate, int employeeCount) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.establishedDate = establishedDate;
-        this.employeeCount = employeeCount;
-    }
 
     public void update(String name, String description, LocalDate establishedDate) {
         if (name != null) {
@@ -64,9 +57,5 @@ public class Department {
         if (establishedDate != null) {
             this.establishedDate = establishedDate;
         }
-
-        // 이름, 설명, 설립일을 각각 하나씩 수정할 수 있도록 변경함
-        // description만 수정하는 경우, name과 establishedDate는 기존 값을 유지
     }
-
 }
