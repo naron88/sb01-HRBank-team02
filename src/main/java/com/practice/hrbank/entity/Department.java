@@ -9,6 +9,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "department")
@@ -38,12 +41,19 @@ public class Department {
     @Column(nullable = false)
     private int employeeCount;
 
+    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Employee> employees = new ArrayList<>();
+
     public Department(String name, String description, LocalDate establishedDate, int employeeCount) {
         this.name = name;
         this.description = description;
         this.establishedDate = establishedDate;
         this.employeeCount = employeeCount;
 
+    }
+
+    public int getEmployeeCount() {
+        return employees.size();
     }
 
 
@@ -58,4 +68,5 @@ public class Department {
             this.establishedDate = establishedDate;
         }
     }
+
 }

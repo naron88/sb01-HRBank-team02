@@ -5,12 +5,18 @@ import com.practice.hrbank.dto.department.DepartmentUpdateRequest;
 import com.practice.hrbank.entity.Department;
 import com.practice.hrbank.repository.DepartmentRepository;
 import com.practice.hrbank.repository.EmployeeRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DepartmentService {
@@ -25,6 +31,26 @@ public class DepartmentService {
 
     public List<DepartmentDto> findAll() {
         return null;
+    }
+
+    // 부서 목록 조회 
+    public List<DepartmentDto> getDepartments(String nameOrDescription, String sortBy, Long lastId, int pageSize) {
+        // Pageable 객체 생성 (정렬 및 페이지네이션)
+        Pageable pageable = PageRequest.of(0, pageSize, Sort.by(Sort.Order.asc(sortBy)));
+
+        // 이름 또는 설명으로 부분 일치 검색
+        Page<Department> departmentsPage = departmentRepository
+                .findByDepartment(nameOrDescription, nameOrDescription, pageable);
+
+
+        return departmentsPage.stream()
+                .map(department -> new DepartmentDto(
+                        department.getId(),
+                        department.getName(),
+                        department.getDescription(),
+                        department.getEstablishedDate(),
+                        department.getEmployeeCount()))
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -52,12 +78,17 @@ public class DepartmentService {
         );
     }
 
-    public DepartmentDto findById(Long id) {
-        return null;
+    public Optional<DepartmentDto> findById(Long id) {
+        return departmentRepository.findById(id)
+                .map(department -> new DepartmentDto(
+                        department.getId(),
+                        department.getName(),
+                        department.getDescription(),
+                        department.getEstablishedDate(),
+                        department.getEmployees().size()
+                ));
     }
 
-    public void delete(Long id) {
-    }
 
     public DepartmentDto update(Long id, DepartmentUpdateRequest departmentUpdateRequest) {
 
@@ -87,7 +118,7 @@ public class DepartmentService {
     }
 
     @Transactional
-    public boolean deleteDepartmentCheck(Long departmentId) {
+    public boolean delete(Long departmentId) {
         if (employeeRepository.existsByDepartmentId(departmentId)) {
             return false;
         }
