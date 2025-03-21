@@ -27,6 +27,10 @@ public class MetadataService {
   private final EmployeesStorage employeesStorage;
   private final LocalLogFileStorage localLogFileStorage;
 
+  public Metadata save(Metadata metadata) {
+    return metadataRepository.save(metadata);
+  }
+
   // 프로필 저장
   public Metadata createProfile(MultipartFile profile) throws IOException {
     Metadata metadata = new Metadata(profile.getName(), profile.getContentType(),

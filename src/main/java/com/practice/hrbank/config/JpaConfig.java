@@ -2,15 +2,16 @@ package com.practice.hrbank.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+//repository test에 이용
 @Configuration
-@RequiredArgsConstructor
-public class QueryDslConfig {
+public class JpaConfig {
 
-  private final EntityManager entityManager;
+  @PersistenceContext
+  private EntityManager entityManager;
 
   @Bean
   public JPAQueryFactory jpaQueryFactory() {

@@ -36,7 +36,7 @@ public class Employee {
 
   @CreatedDate
   @Column(nullable = false)
-  private Instant createAt;
+  private Instant createdAt;
 
   @LastModifiedDate
   private Instant updatedAt;
@@ -84,6 +84,7 @@ public class Employee {
 
     this.profileImage = profileImage;
     this.department = department;
+    this.createdAt = Instant.now();
   }
 
   public void updateName(String newName) {

@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +32,7 @@ public class EmployeeController {
 
   private final EmployeeService employeeService;
 
-  @PostMapping
+  @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   public ResponseEntity<EmployeeDto> create(@Valid @RequestPart EmployeeCreateRequest request,
       @RequestPart(value = "profile", required = false) MultipartFile profile,
       HttpServletRequest httpServletRequest) throws IOException {
@@ -81,7 +82,7 @@ public class EmployeeController {
         .build();
   }
 
-  @PatchMapping("/{id}")
+  @PatchMapping(name = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   public ResponseEntity<EmployeeDto> update(@PathVariable Long id,
       @RequestPart EmployeeUpdateRequest request,
       @RequestPart(value = "profile", required = false) MultipartFile profile,

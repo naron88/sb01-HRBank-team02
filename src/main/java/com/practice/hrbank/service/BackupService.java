@@ -40,10 +40,10 @@ public class BackupService {
           null,
           clientIp
       );
-      backup = backupRepository.save(backup);
 
       try {
         Metadata metadata = metadataService.createEmployeesFile(backup.getId());
+        metadata = metadataService.save(metadata); // Metadata 먼저 저장
         backup.setFile(metadata);
         backup.setEndedAt(Instant.now());
         backup.setStatus(Status.COMPLETED);
@@ -51,6 +51,7 @@ public class BackupService {
         return backupMapper.toDto(backup);
       } catch (IOException e) {
         Metadata metadata = metadataService.createErrorLogFile(Instant.now(), e.getMessage());
+        metadata = metadataService.save(metadata); // Metadata 먼저 저장
         backup.setFile(metadata);
         backup.setEndedAt(Instant.now());
         backup.setStatus(Status.FAILED);
@@ -87,9 +88,15 @@ public class BackupService {
       }
     }
 
-    Specification<Backup> spec = Specification.where(getSpec(worker, status, startedAtFrom, startedAtTo, idAfter));
+    Specification<Backup> spec = getSpec(worker, status, startedAtFrom, startedAtTo, idAfter);
     Pageable pageable = createPageable(size, sortField, sortDirection, "startedAt", "desc");
-    Page<Backup> backups = backupRepository.findAll(spec, pageable);
+
+    Page<Backup> backups;
+    if (spec == null) {
+      backups = backupRepository.findAll(pageable);
+    } else {
+      backups = backupRepository.findAll(spec, pageable);
+    }
 
     Long nextIdAfter = null;
     String nextCursor = null;
@@ -124,7 +131,7 @@ public class BackupService {
   private boolean isChanged() {
     Instant lastBackupAt = findLatest("COMPLETED") == null ? null : findLatest("COMPLETED").startedAt();
     if (lastBackupAt == null) {
-      return false;
+      return true;
     }
     return employeeRepository.findByUpdatedAtGreaterThan(lastBackupAt).isPresent();
   }
@@ -133,6 +140,7 @@ public class BackupService {
   private Specification<Backup> getSpec(String worker, String status, Instant startedAtFrom,
       Instant startedAtTo, Long idAfter) {
     Specification<Backup> spec = Specification.where(null);
+
     if (worker != null && !worker.isEmpty()) {
       spec = spec.and((root, query, cb) ->
           cb.like(root.get("worker"), "%" + worker + "%"));
@@ -161,38 +169,5 @@ public class BackupService {
 
     return spec;
   }
-
-  private Specification<Backup> getSpec(String worker, String status, Instant startedAtFrom,
-      Instant startedAtTo, Long idAfter) {
-    Specification<Backup> spec = Specification.where(null);
-    if (worker != null && !worker.isEmpty()) {
-      spec = spec.and((root, query, cb) ->
-          cb.like(root.get("worker"), "%" + worker + "%"));
-    }
-    if (status != null && !status.isEmpty()) {
-      spec = spec.and((root, query, cb) ->
-          cb.equal(root.get("status"), status));
-    }
-
-    if (startedAtFrom != null && startedAtTo == null) {
-      spec = spec.and((root, query, cb) ->
-          cb.between(root.get("startTime"), startedAtFrom, Instant.now()));
-    } else if (startedAtFrom == null && startedAtTo != null) {
-      spec = spec.and((root, query, cb) ->
-          cb.between(root.get("startTime"), Instant.EPOCH, startedAtTo));
-    }
-    if (startedAtFrom != null && startedAtTo != null) {
-      spec = spec.and((root, query, cb) ->
-          cb.between(root.get("startTime"), startedAtFrom, startedAtTo));
-    }
-
-    if (idAfter != null) {
-      spec = spec.and((root, query, criteriaBuilder) ->
-          criteriaBuilder.greaterThan(root.get("id"), idAfter));
-    }
-
-    return spec;
-  }
-
 
 }

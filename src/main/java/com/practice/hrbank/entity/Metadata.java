@@ -6,8 +6,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 @NoArgsConstructor
@@ -28,9 +30,14 @@ public class Metadata {
   @Column(nullable = false)
   private long size;
 
+  @CreatedDate
+  @Column(nullable = false)
+  private Instant createdAt;
+
   public Metadata(String name, String contentType, long size) {
     this.name = name;
     this.contentType = contentType;
     this.size = size;
+    this.createdAt = Instant.now();
   }
 }

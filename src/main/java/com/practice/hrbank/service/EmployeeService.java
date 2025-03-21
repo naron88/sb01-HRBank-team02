@@ -12,6 +12,7 @@ import com.practice.hrbank.entity.Metadata;
 import com.practice.hrbank.mapper.EmployeeMapper;
 import com.practice.hrbank.repository.DepartmentRepository;
 import com.practice.hrbank.repository.EmployeeRepository;
+import jakarta.persistence.criteria.Predicate;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Base64;
@@ -22,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -80,10 +82,12 @@ public class EmployeeService {
 
     Sort.Direction direction = Sort.Direction.fromString(sortDirection);
     Pageable pageable = PageRequest.of(0, size, Sort.by(direction, sortField));
-    Page<Employee> employeePage = employeeRepository.findAllWithFilters(
+    Specification<Employee> specification = buildSpecification(
         nameOrEmail, employeeNumber, departmentName, position, hireDateFrom, hireDateTo, status,
-        idAfter, cursor, pageable
+        idAfter, cursor
     );
+
+    Page<Employee> employeePage = employeeRepository.findAll(specification, pageable);
 
     List<EmployeeDto> content = employeeMapper.toDtoList(employeePage.getContent());
     EmployeeDto lastEmployee = content.isEmpty() ? null : content.get(content.size() - 1);
@@ -195,5 +199,72 @@ public class EmployeeService {
   public void validateDuplicateEmail(String email) {
     employeeRepository.findAll()
         .forEach(employee -> employee.validateDuplicateEmail(email));
+  }
+
+  public Specification<Employee> buildSpecification(
+      String nameOrEmail,
+      String employeeNumber,
+      String departmentName,
+      String position,
+      LocalDate hireDateFrom,
+      LocalDate hireDateTo,
+      Employee.Status status,
+      Long idAfter,
+      String cursor
+  ) {
+    return (root, query, criteriaBuilder) -> {
+      Predicate predicate = criteriaBuilder.conjunction();
+
+      if (nameOrEmail != null) {
+        boolean isEmail = nameOrEmail.contains("@") && nameOrEmail.contains(".");
+        if (isEmail) {
+          predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.lower(root.get("email")), "%" + nameOrEmail.toLowerCase() + "%"));
+        } else {
+          predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + nameOrEmail.toLowerCase() + "%"));
+        }
+      }
+
+      if (employeeNumber != null) {
+        predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.lower(root.get("employeeNumber")), "%" + employeeNumber.toLowerCase() + "%"));
+      }
+
+      if (departmentName != null) {
+        predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.lower(root.get("department").get("name")), "%" + departmentName.toLowerCase() + "%"));
+      }
+
+      if (position != null) {
+        predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.lower(root.get("position")), "%" + position.toLowerCase() + "%"));
+      }
+
+      if (hireDateFrom != null || hireDateTo != null) {
+        if (hireDateFrom != null && hireDateTo != null) {
+          predicate = criteriaBuilder.and(predicate, criteriaBuilder.between(root.get("hireDate"), hireDateFrom, hireDateTo));
+        } else if (hireDateFrom != null) {
+          predicate = criteriaBuilder.and(predicate, criteriaBuilder.greaterThanOrEqualTo(root.get("hireDate"), hireDateFrom));
+        } else if (hireDateTo != null) {
+          predicate = criteriaBuilder.and(predicate, criteriaBuilder.lessThanOrEqualTo(root.get("hireDate"), hireDateTo));
+        }
+      }
+
+      if (status != null) {
+        predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("status"), status));
+      }
+
+      if (idAfter != null) {
+        predicate = criteriaBuilder.and(predicate, criteriaBuilder.greaterThan(root.get("id"), idAfter));
+      }
+
+      if (cursor != null) {
+        Long cursorId = decodeCursor(cursor);
+        predicate = criteriaBuilder.and(predicate, criteriaBuilder.greaterThan(root.get("id"), cursorId));
+      }
+
+      return predicate;
+    };
+  }
+
+  private Long decodeCursor(String cursor) {
+    byte[] decodedBytes = Base64.getDecoder().decode(cursor);
+    return Long.parseLong(new String(decodedBytes));
   }
 }
