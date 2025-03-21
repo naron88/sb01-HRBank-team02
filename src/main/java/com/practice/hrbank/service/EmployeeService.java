@@ -119,9 +119,6 @@ public class EmployeeService {
       String ipAddress) throws IOException {
     Employee employee = employeeRepository.findById(id)
         .orElseThrow(() -> new NoSuchElementException("Employee with id " + id + " not found"));
-    Department department = departmentRepository.findById(request.departmentId())
-        .orElseThrow(() -> new NoSuchElementException(
-            "Department with id " + request.departmentId() + " not found"));
 
     EmployeeDto beforeEmployeeDto = employeeMapper.toDto(employee);
 
@@ -135,7 +132,10 @@ public class EmployeeService {
     if (request.position() != null && !request.position().isBlank()) {
       employee.updatePosition(request.position());
     }
-    if (department != null) {
+    if (request.departmentId() != null) {
+      Department department = departmentRepository.findById(request.departmentId())
+          .orElseThrow(() -> new NoSuchElementException(
+              "Department with id " + request.departmentId() + " not found"));
       employee.updateDepartment(department);
     }
     if (file != null) {

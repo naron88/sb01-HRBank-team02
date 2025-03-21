@@ -66,14 +66,14 @@ public class EmployeeController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<EmployeeDto> find(@PathVariable Long id) {
+  public ResponseEntity<EmployeeDto> find(@PathVariable("id") Long id) {
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(employeeService.findById(id));
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> delete(@PathVariable Long id, HttpServletRequest httpServletRequest) {
+  public ResponseEntity<Void> delete(@PathVariable("id") Long id, HttpServletRequest httpServletRequest) {
     String ipAddress = httpServletRequest.getRemoteAddr();
     employeeService.delete(id, ipAddress);
 
@@ -82,8 +82,8 @@ public class EmployeeController {
         .build();
   }
 
-  @PatchMapping(name = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-  public ResponseEntity<EmployeeDto> update(@PathVariable Long id,
+  @PatchMapping(value = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+  public ResponseEntity<EmployeeDto> update(@PathVariable("id") Long id,
       @RequestPart("request") EmployeeUpdateRequest request,
       @RequestPart(value = "profile", required = false) MultipartFile profile,
       HttpServletRequest httpServletRequest) throws IOException {
