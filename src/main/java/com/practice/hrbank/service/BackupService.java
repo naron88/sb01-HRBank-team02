@@ -40,10 +40,10 @@ public class BackupService {
           null,
           clientIp
       );
-      backup = backupRepository.save(backup);
 
       try {
         Metadata metadata = metadataService.createEmployeesFile(backup.getId());
+        metadata = metadataService.save(metadata); // Metadata 먼저 저장
         backup.setFile(metadata);
         backup.setEndedAt(Instant.now());
         backup.setStatus(Status.COMPLETED);
@@ -51,6 +51,7 @@ public class BackupService {
         return backupMapper.toDto(backup);
       } catch (IOException e) {
         Metadata metadata = metadataService.createErrorLogFile(Instant.now(), e.getMessage());
+        metadata = metadataService.save(metadata); // Metadata 먼저 저장
         backup.setFile(metadata);
         backup.setEndedAt(Instant.now());
         backup.setStatus(Status.FAILED);
