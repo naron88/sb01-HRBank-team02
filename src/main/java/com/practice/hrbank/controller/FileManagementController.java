@@ -19,15 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/files")
 public class FileManagementController {
 
-  private final BackupService backupService;
   private final EmployeesStorage employeesStorage;
   private final MetadataService metadataService;
 
   @GetMapping("/{id}/download")
   public ResponseEntity<?> download(
-    @PathVariable("id") Long backupId) throws IOException {
-    BackupDto backupDto = backupService.findById(backupId);
-    Metadata metadata = metadataService.findById(backupDto.fileId());
+    @PathVariable("id") Long metadataId) throws IOException {
+    Metadata metadata = metadataService.findById(metadataId);
     return employeesStorage.download(metadata);
   }
 }
