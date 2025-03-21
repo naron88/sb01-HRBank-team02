@@ -40,6 +40,7 @@ public class BackupService {
           null,
           clientIp
       );
+      backup = backupRepository.save(backup);
 
       try {
         Metadata metadata = metadataService.createEmployeesFile(backup.getId());
