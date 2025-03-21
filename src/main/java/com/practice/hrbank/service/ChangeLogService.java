@@ -84,7 +84,7 @@ public class ChangeLogService {
                         changeLogCreateRequest.afterEmployeeDto().employeeNumber(),
                         detailJson,
                         changeLogCreateRequest.memo(),
-                        changeLogCreateRequest.ipAddress()));
+                        ipAddress));
                     break;
                 default:
                     changeLogRepository.save(new ChangeLog(
@@ -92,7 +92,7 @@ public class ChangeLogService {
                             changeLogCreateRequest.beforeEmployeeDto().employeeNumber(),
                             detailJson,
                             changeLogCreateRequest.memo(),
-                            changeLogCreateRequest.ipAddress()
+                            ipAddress
                     ));
             }
         } catch (JsonProcessingException e) {
