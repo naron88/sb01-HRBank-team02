@@ -36,7 +36,8 @@ public class EmployeeTrendService {
       double changeRate = (previousCount == null || previousCount == 0)
           ? 0
           : (double) change * 100 / previousCount;
-      trendList.add(new EmployeeTrendDto(date, count, change, changeRate));
+      double roundedChangeRate = Math.round(changeRate * 10.0) / 10.0;
+      trendList.add(new EmployeeTrendDto(date, count, change, roundedChangeRate));
       previousCount = count;
     }
     return trendList;
@@ -50,14 +51,14 @@ public class EmployeeTrendService {
     List<EmployeeTrendDto> trendList = new ArrayList<>();
     Integer previousCount = null;
 
-    for (LocalDate date = start; date.isBefore(now) || date.isEqual(now);
-        date = date.plusMonths(1)) {
-      int count = employeeRepository.countByHireDateBefore(date.plusMonths(1));
+    // 날짜 범위가 12개월이 되도록 수정 (now 전에까지)
+    for (LocalDate date = start; date.isBefore(now); date = date.plusMonths(1)) {
+      LocalDate endOfMonth = date.plusMonths(1).withDayOfMonth(1);
+      int count = employeeRepository.countByHireDateBefore(endOfMonth);
       int change = (previousCount == null) ? 0 : count - previousCount;
-      double changeRate =
-          (previousCount == null || previousCount == 0) ? 0 : (double) change * 100 / previousCount;
-
-      trendList.add(new EmployeeTrendDto(date, count, change, changeRate));
+      double changeRate = (previousCount == null || previousCount == 0) ? 0 : (double) change * 100 / previousCount;
+      double roundedChangeRate = Math.round(changeRate * 10.0) / 10.0;
+      trendList.add(new EmployeeTrendDto(date, count, change, roundedChangeRate));
       previousCount = count;
     }
     return trendList;
