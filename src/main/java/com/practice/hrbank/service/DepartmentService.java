@@ -81,18 +81,19 @@ public class DepartmentService {
         Department department = new Department(
                 departmentCreateRequest.name(),
                 departmentCreateRequest.description(),
-                departmentCreateRequest.establishedDate(),
-                0
+                departmentCreateRequest.establishedDate()
         );
 
         Department savedDepartment = departmentRepository.save(department);
+
+        int employeeCount = employeeRepository.countByDepartmentId(savedDepartment.getId());
 
         return new DepartmentDto(
                 savedDepartment.getId(),
                 savedDepartment.getName(),
                 savedDepartment.getDescription(),
                 savedDepartment.getEstablishedDate(),
-                savedDepartment.getEmployeeCount()
+                employeeCount
         );
     }
 
@@ -114,12 +115,14 @@ public class DepartmentService {
         // null이 아닌 값만 업데이트
         department.update(departmentUpdateRequest.name(), departmentUpdateRequest.description(), departmentUpdateRequest.establishedDate());
 
+        int employeeCount = employeeRepository.countByDepartmentId(department.getId());
+
         return new DepartmentDto(
                 department.getId(),
                 department.getName(),
                 department.getDescription(),
                 department.getEstablishedDate(),
-                department.getEmployeeCount()
+                employeeCount
 
         );
     }
