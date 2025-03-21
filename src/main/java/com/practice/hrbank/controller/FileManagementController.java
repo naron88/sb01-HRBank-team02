@@ -1,7 +1,10 @@
 package com.practice.hrbank.controller;
 
+import com.practice.hrbank.dto.backup.BackupDto;
 import com.practice.hrbank.entity.Metadata;
+import com.practice.hrbank.repository.MetadataRepository;
 import com.practice.hrbank.service.BackupService;
+import com.practice.hrbank.service.MetadataService;
 import com.practice.hrbank.storage.EmployeesStorage;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -18,12 +21,13 @@ public class FileManagementController {
 
   private final BackupService backupService;
   private final EmployeesStorage employeesStorage;
+  private final MetadataService metadataService;
 
   @GetMapping("/{id}/download")
   public ResponseEntity<?> download(
     @PathVariable("id") Long backupId) throws IOException {
-    Metadata metadata = backupService.findById(backupId)
-        .getFile();
+    BackupDto backupDto = backupService.findById(backupId);
+    Metadata metadata = metadataService.findById(backupDto.fileId());
     return employeesStorage.download(metadata);
   }
 }
