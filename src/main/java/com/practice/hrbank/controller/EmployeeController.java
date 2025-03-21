@@ -33,7 +33,7 @@ public class EmployeeController {
   private final EmployeeService employeeService;
 
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-  public ResponseEntity<EmployeeDto> create(@Valid @RequestPart EmployeeCreateRequest request,
+  public ResponseEntity<EmployeeDto> create(@Valid @RequestPart("request") EmployeeCreateRequest request,
       @RequestPart(value = "profile", required = false) MultipartFile profile,
       HttpServletRequest httpServletRequest) throws IOException {
     String ipAddress = httpServletRequest.getRemoteAddr();
@@ -84,7 +84,7 @@ public class EmployeeController {
 
   @PatchMapping(name = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   public ResponseEntity<EmployeeDto> update(@PathVariable Long id,
-      @RequestPart EmployeeUpdateRequest request,
+      @RequestPart("request") EmployeeUpdateRequest request,
       @RequestPart(value = "profile", required = false) MultipartFile profile,
       HttpServletRequest httpServletRequest) throws IOException {
     String ipAddress = httpServletRequest.getRemoteAddr();
