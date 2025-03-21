@@ -20,7 +20,7 @@ public class EmployeeMapper {
         employee.getPosition(),
         employee.getHireDate(),
         employee.getStatus(),
-        employee.getProfileImage().getId()
+        employee.getProfileImage() == null ? null : employee.getProfileImage().getId()
     );
   }
 

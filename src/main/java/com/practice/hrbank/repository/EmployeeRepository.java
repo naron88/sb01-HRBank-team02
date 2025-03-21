@@ -5,12 +5,14 @@ import com.practice.hrbank.entity.Employee.Status;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import java.util.Optional;
 
-public interface EmployeeRepository extends JpaRepository<Employee, Long>, EmployeeRepositoryCustom {
+public interface EmployeeRepository extends JpaRepository<Employee, Long>,
+    JpaSpecificationExecutor<Employee>, EmployeeRepositoryCustom {
 
   @Query("SELECT e.employeeNumber FROM Employee e WHERE e.employeeNumber LIKE :yearPrefix ORDER BY e.employeeNumber DESC")
   String findLatestEmployeeNumberByYear(@Param("yearPrefix") int yearPrefix);
