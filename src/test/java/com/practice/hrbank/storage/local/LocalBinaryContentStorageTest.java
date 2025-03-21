@@ -30,7 +30,7 @@ public class LocalBinaryContentStorageTest {
   public void createFile_Success() throws IOException {
     // given
     Long id = 2L;
-    byte[] data = "Test data".getBytes();
+    byte[] data = "test2_profile".getBytes();
     Path filePath = testDirectory.resolve(id.toString());
 
     // when
