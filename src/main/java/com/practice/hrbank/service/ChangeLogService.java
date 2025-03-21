@@ -2,11 +2,7 @@ package com.practice.hrbank.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.practice.hrbank.dto.DepartmentCreateRequest;
-import com.practice.hrbank.dto.changeLog.ChangeLogDto;
-import com.practice.hrbank.dto.changeLog.ChangeLogRequestDto;
-import com.practice.hrbank.dto.changeLog.CursorPageResponseChangeLogDto;
-import com.practice.hrbank.dto.changeLog.DiffDto;
+import com.practice.hrbank.dto.changeLog.*;
 import com.practice.hrbank.dto.employee.EmployeeDto;
 import com.practice.hrbank.entity.ChangeLog;
 import com.practice.hrbank.repository.ChangeLogRepository;
@@ -21,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -70,28 +67,28 @@ public class ChangeLogService {
         return new CursorPageResponseChangeLogDto(content, nextCursor, nextIdAfter, size, (int) changeLogs.getTotalElements(), hasNext);
     }
 
-    public void save(DepartmentCreateRequest departmentCreateRequest) {
-        List<DiffDto> detail = getdiff(departmentCreateRequest.beforeEmployeeDto(), departmentCreateRequest.afterEmployeeDto());
+    public void save(ChangeLogCreateRequest changeLogCreateRequest) {
+        List<DiffDto> detail = getdiff(changeLogCreateRequest.beforeEmployeeDto(), changeLogCreateRequest.afterEmployeeDto());
 
         try {
             String detailJson = objectMapper.writeValueAsString(detail);
 
-            switch(departmentCreateRequest.changeType()) {
+            switch(changeLogCreateRequest.changeType()) {
                 case CREATED:
                     changeLogRepository.save(new ChangeLog(
-                        departmentCreateRequest.changeType(),
-                        departmentCreateRequest.afterEmployeeDto().employeeNumber(),
+                        changeLogCreateRequest.changeType(),
+                        changeLogCreateRequest.afterEmployeeDto().employeeNumber(),
                         detailJson,
-                        departmentCreateRequest.memo(),
-                        departmentCreateRequest.ipAddress()));
+                        changeLogCreateRequest.memo(),
+                        changeLogCreateRequest.ipAddress()));
                     break;
                 default:
                     changeLogRepository.save(new ChangeLog(
-                            departmentCreateRequest.changeType(),
-                            departmentCreateRequest.beforeEmployeeDto().employeeNumber(),
+                            changeLogCreateRequest.changeType(),
+                            changeLogCreateRequest.beforeEmployeeDto().employeeNumber(),
                             detailJson,
-                            departmentCreateRequest.memo(),
-                            departmentCreateRequest.ipAddress()
+                            changeLogCreateRequest.memo(),
+                            changeLogCreateRequest.ipAddress()
                     ));
             }
         } catch (JsonProcessingException e) {
