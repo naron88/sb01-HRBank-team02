@@ -11,7 +11,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "department")
+@Table(name = "departments")
 @Getter
 @NoArgsConstructor
 public class Department {
@@ -21,7 +21,7 @@ public class Department {
 
     @CreatedDate
     @Column(nullable = false)
-    private Instant createAt;
+    private Instant createdAt;
 
     @LastModifiedDate
     private Instant updatedAt;
