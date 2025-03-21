@@ -47,9 +47,10 @@ public class EmployeeDistributionService {
       });
     }
     for (String key : groupedCount.keySet()) {
+      double percentage = (double) groupedCount.get(key) / totalCount * 100;
+      double roundedPercentage = Math.round(percentage * 10.0) / 10.0;
       distributionDtoList.add(
-          new EmployeeDistributionDto(key, groupedCount.get(key), (double) groupedCount.get(
-              key) / totalCount));
+          new EmployeeDistributionDto(key, groupedCount.get(key), roundedPercentage));
     }
     return distributionDtoList;
   }
@@ -66,9 +67,10 @@ public class EmployeeDistributionService {
         });
     List<EmployeeDistributionDto> distributionDtoList = new ArrayList<>();
     for (String key : groupedCount.keySet()) {
+      double percentage = (double) groupedCount.get(key) / totalCount * 100;
+      double roundedPercentage = Math.round(percentage * 10.0) / 10.0;
       distributionDtoList.add(
-          new EmployeeDistributionDto(key, groupedCount.get(key), (double) groupedCount.get(
-              key) / totalCount));
+          new EmployeeDistributionDto(key, groupedCount.get(key), roundedPercentage));
     }
     return distributionDtoList;
   }
@@ -84,9 +86,10 @@ public class EmployeeDistributionService {
     });
     List<EmployeeDistributionDto> distributionDtoList = new ArrayList<>();
     for (String key : groupedCount.keySet()) {
+      double percentage = (double) groupedCount.get(key) / totalCount * 100;
+      double roundedPercentage = Math.round(percentage * 10.0) / 10.0;
       distributionDtoList.add(
-          new EmployeeDistributionDto(key, groupedCount.get(key), (double) groupedCount.get(
-              key) / totalCount));
+          new EmployeeDistributionDto(key, groupedCount.get(key), roundedPercentage));
     }
     return distributionDtoList;
   }

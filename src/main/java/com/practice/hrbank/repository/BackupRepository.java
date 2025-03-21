@@ -13,7 +13,5 @@ public interface BackupRepository extends JpaRepository<Backup, Long>, JpaSpecif
 
   Optional<Backup> findFirstByStatusOrderByStartedAtDesc(Status status);
 
-  Optional<Backup> findFirstByOrderByStartedAtDesc();
-
   Optional<Backup> findByFile(Metadata metadata);
 }
