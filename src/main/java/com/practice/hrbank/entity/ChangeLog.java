@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 
 @Entity
-@Table(name = "changelogs")
+@Table(name = "change_logs")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChangeLog {

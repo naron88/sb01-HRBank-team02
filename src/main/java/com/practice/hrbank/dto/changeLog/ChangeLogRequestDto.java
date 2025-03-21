@@ -7,11 +7,9 @@ public record ChangeLogRequestDto(
         String ipAddress,
         String atFrom,
         String atTo,
-        String idAfter,
+        Long idAfter,
         String cursor,
-        String size,
+        Integer size,
         String sortField,
         String sortDirection
-) {
-
-}
+) {}

@@ -41,17 +41,23 @@ public class LocalEmployeesStorage implements EmployeesStorage {
 
   @Override
   public Long save(Long backupId, List<Employee> employees) throws IOException {
-    System.out.println("Saving employee backup with backupId: " + backupId);
     String backupFileName = "employee_backup_" + backupId + ".csv";
     Path filePath = root.resolve(backupFileName);
-    System.out.println("Number of employees to save: " + employees.size());
     saveEmployeesToCsv(filePath, employees);
     return Files.size(filePath);
   }
 
   @Override
   public ResponseEntity<Resource> download(Metadata metadata) throws IOException {
-    Path filePath = root.resolve(metadata.getName());
+    String backupFileName = metadata.getName() + ".csv";
+    Path filePath = root.resolve(backupFileName);
+
+    // 파일이 존재하는지 확인
+    if (!Files.exists(filePath)) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .body(null);
+    }
+
     InputStream inputStream = Files.newInputStream(filePath);
     Resource resource = new InputStreamResource(inputStream);
 
@@ -69,10 +75,8 @@ public class LocalEmployeesStorage implements EmployeesStorage {
         StandardOpenOption.TRUNCATE_EXISTING)) {
       writer.write("ID,직원번호,이름,이메일,부서,직급,입사일,상태");
       writer.newLine();
-      System.out.println("ready");
 
       for (Employee emp : employees) {
-        System.out.println("Writing employee: " + emp.getId() + ", " + emp.getEmployeeNumber());
         writer.write(String.join(",",
                 emp.getId().toString(),
                 emp.getEmployeeNumber(),
