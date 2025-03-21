@@ -15,13 +15,14 @@ import java.util.Optional;
 public interface ChangeLogRepository extends JpaRepository<ChangeLog, Long> {
 
     @Query("SELECT c FROM ChangeLog c WHERE " +
-            "(:employeeNumber IS NULL OR c.employeeNumber = :employeeNumber) " +
+            "(:employeeNumber IS NULL OR LOWER(c.employeeNumber) = LOWER(:employeeNumber)) " +
             "AND (:type IS NULL OR c.type = :type) " +
             "AND (:memo IS NULL OR c.memo LIKE %:memo%) " +
             "AND (:ipAddress IS NULL OR c.ipAddress = :ipAddress) " +
             "AND (:atFrom IS NULL OR c.at >= :atFrom) " +
             "AND (:atTo IS NULL OR c.at <= :atTo) " +
-            "AND (:idAfter IS NULL OR c.id > :idAfter)")
+            "AND (:idAfter IS NULL OR c.id > :idAfter OR :idAfter IS NULL) " +
+            "ORDER BY c.at DESC, c.id ASC")
     Page<ChangeLog> findByFilters(
             @Param("employeeNumber") String employeeNumber,
             @Param("type") String type,

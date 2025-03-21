@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-@EnableJpaAuditing
+//@EnableJpaAuditing
 public class HrBankApplication {
 
   public static void main(String[] args) {
