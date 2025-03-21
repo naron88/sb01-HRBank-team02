@@ -1,11 +1,8 @@
-package com.practice.hrbank.dto;
-
+package com.practice.hrbank.dto.department;
 
 import java.time.LocalDate;
 
-
-public record DepartmentDto(
-        Long id,
+public record DepartmentCreateRequest(
         String name,
         String description,
         LocalDate establishedDate

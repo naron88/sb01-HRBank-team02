@@ -39,11 +39,11 @@ public class LocalEmployeesStorageTest {
 
   @Test
   public void save_Success() throws IOException {
-    // given
-    Employee emp1 = new Employee(1L, "test", "test@gmail.com", "12", "Manager", LocalDate.now(), new Metadata("test", "test", 1L), new Department("test", "test",
-        LocalDate.now()), Status.ACTIVE);
-    Employee emp2 = new Employee(2L, "test2", "test2@gmail.com", "122", "Manager2", LocalDate.now(), new Metadata("test2", "test2", 2L), new Department("test2", "test2",
-        LocalDate.now()), Status.ACTIVE);
+    // given - 테스트 할 때만 Employee 생성자를 바꾸고 했습니다.
+    Employee emp1 = new Employee(1L, "test1", "test1@gmail.com", "E-1", "Manager", LocalDate.now(),
+        new Metadata("test1_profile", "image/jpg", 1024L), new Department("IT", "IT 부서", LocalDate.now(), 1));
+    Employee emp2 = new Employee(2L, "test2", "test2@gmail.com", "E-2", "Manager", LocalDate.now(),
+        new Metadata("test2_profile", "image/jpg", 2048L), new Department("마케팅", "마케팅 부서", LocalDate.now(), 2));
     List<Employee> employees = Arrays.asList(emp1, emp2);
     Long backupId = 3L;
     Path filePath = testDirectory.resolve("employee_backup_" + backupId + ".csv");
@@ -54,9 +54,6 @@ public class LocalEmployeesStorageTest {
     // then
     assertTrue(Files.exists(filePath));
     assertEquals(fileSize, Files.size(filePath));
-
-
-
   }
 
   @Test
@@ -64,12 +61,14 @@ public class LocalEmployeesStorageTest {
     // given
     long backupId = 3L;
     Path filePath = testDirectory.resolve("employee_backup_" + backupId + ".csv");
-    Metadata metadata = new Metadata("employee_backup_" + backupId + ".csv", "text/csv", Files.size(filePath));
+    Metadata metadata = new Metadata("employee_backup_" + backupId, "text/csv", Files.size(filePath));
 
     // when
     ResponseEntity<Resource> responseEntity = localEmployeesStorage.download(metadata);
 
     // then
+    System.out.println("Response body: " + responseEntity.getBody());
+
     assertNotNull(responseEntity.getBody());
     assertInstanceOf(InputStreamResource.class, responseEntity.getBody());
   }

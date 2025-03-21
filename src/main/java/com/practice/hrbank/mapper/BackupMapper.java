@@ -11,8 +11,8 @@ public class BackupMapper {
     return new BackupDto(backup.getId(),
         backup.getWorker(),
         backup.getStartedAt(),
-        backup.getEndedAt(),
+        backup.getEndedAt() == null ? null : backup.getEndedAt(),
         backup.getStatus(),
-        backup.getFile().getId());
+        backup.getFile() == null ? null : backup.getFile().getId());
   }
 }
