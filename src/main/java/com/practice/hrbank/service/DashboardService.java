@@ -56,7 +56,7 @@ public class DashboardService {
 
   // 마지막 백업 시간 조회
   public Instant findLastBackupTime() {
-    return backupService.findLatest().startedAt();
+    return backupService.findLatest(null).startedAt();
   }
 
   // 최근 1년간 월별 직원 수 변동 추이 조회
