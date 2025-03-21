@@ -14,7 +14,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, Emplo
 
   @Query("SELECT e.employeeNumber FROM Employee e WHERE e.employeeNumber LIKE :yearPrefix ORDER BY e.employeeNumber DESC")
   String findLatestEmployeeNumberByYear(@Param("yearPrefix") int yearPrefix);
-    
+
   // 특정 날짜 이전에 입사한 직원 수 조회
   int countByHireDateBefore(LocalDate date);
 
@@ -30,8 +30,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, Emplo
 
   // 특정 기간 입사한 직원 수 조회
   int countByHireDateBetween(LocalDate startDate, LocalDate endDate);
-  
+
   // 최근에 수정된 직원 조회
-  Optional<Employee> findByUpdatedAtGreaterThan(Instant lastBatchTime); 
+  Optional<Employee> findByUpdatedAtGreaterThan(Instant lastBatchTime);
 
 }
