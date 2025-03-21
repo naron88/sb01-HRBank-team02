@@ -130,6 +130,18 @@ public class ChangeLogService {
             return diffs;
         }
 
+        if (changeLogCreateRequest.changeType() == ChangeLog.Type.UPDATED)
+        {
+            diffs.add(new DiffDto("입사일", String.valueOf(beforeDto.hireDate()), String.valueOf(afterDto.hireDate())));
+            diffs.add(new DiffDto("이름", beforeDto.name(), afterDto.name()));
+            diffs.add(new DiffDto("직함", beforeDto.position(), afterDto.position()));
+            diffs.add(new DiffDto("부서명", beforeDto.departmentName(), afterDto.departmentName()));
+            diffs.add(new DiffDto("이메일", beforeDto.email(), afterDto.email()));
+            diffs.add(new DiffDto("사번", beforeDto.employeeNumber(), afterDto.employeeNumber()));
+            diffs.add(new DiffDto("상태", String.valueOf(beforeDto.status()), String.valueOf(afterDto.status())));
+            return diffs;
+        }
+
         return null;
     }
 
