@@ -72,7 +72,6 @@ public class ChangeLogService {
 
     public void save(ChangeLogCreateRequest changeLogCreateRequest) {
         List<DiffDto> detail = getdiff(changeLogCreateRequest);
-        String ipAddress = changeLogCreateRequest.ipAddress() != null ? changeLogCreateRequest.ipAddress() : generateRandomIpAddress();
 
         try {
             String detailJson = objectMapper.writeValueAsString(detail);
@@ -92,8 +91,7 @@ public class ChangeLogService {
                             changeLogCreateRequest.beforeEmployeeDto().employeeNumber(),
                             detailJson,
                             changeLogCreateRequest.memo(),
-                            changeLogCreateRequest.ipAddress()
-                    ));
+                            changeLogCreateRequest.ipAddress()));
             }
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
@@ -163,12 +161,5 @@ public class ChangeLogService {
         LocalDateTime to = (toDate != null) ? LocalDateTime.parse(toDate) : LocalDateTime.now();
 
         return changeLogRepository.countByAtBetween(from, to);
-    }
-
-    private String generateRandomIpAddress() {
-        return random.nextInt(256) + "." +
-                random.nextInt(256) + "." +
-                random.nextInt(256) + "." +
-                random.nextInt(256);
     }
 }
