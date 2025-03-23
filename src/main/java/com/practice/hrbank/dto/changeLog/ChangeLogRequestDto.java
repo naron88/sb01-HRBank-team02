@@ -1,12 +1,14 @@
 package com.practice.hrbank.dto.changeLog;
 
+import java.time.Instant;
+
 public record ChangeLogRequestDto(
         String employeeNumber,
         String type,
         String memo,
         String ipAddress,
-        String atFrom,
-        String atTo,
+        Instant atFrom,
+        Instant atTo,
         Long idAfter,
         String cursor,
         Integer size,
