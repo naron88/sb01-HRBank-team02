@@ -3,15 +3,39 @@
 https://diligent-pentagon-bf8.notion.site/HR-BANK-1b556a0cb3b080268b3cf709bcab04b4?pvs=4
 
 # 팀원 구성
-신은섭 (https://github.com/eunseobb)
-
-박서연 (https://github.com/yxoni)
-
-김시온 ((https://github.com/goospel)
-
-이병규 (https://github.com/naron88)
-
-공병열 ((https://github.com/byeongyeol12)
+<table>
+    <tr align="center">
+        <td><a href="https://github.com/eunseobb">신은섭</a></td>
+        <td><a href="https://github.com/yxoni">박서연</a></td>
+        <td><a href="https://github.com/goospel">김시온</a></td>
+        <td><a href="https://github.com/naron88">이병규</a></td>
+        <td><a href="https://github.com/byeongyeol12">공별열</a></td>
+    </tr>
+    <tr align="center">
+        <td>
+            <img src="https://avatars.githubusercontent.com/u/92570258?v=4" width="130">
+        </td>
+        <td>
+            <img src="https://avatars.githubusercontent.com/u/90109410?v=4" width="130">
+        </td>
+        <td>
+            <img src="https://avatars.githubusercontent.com/u/80618017?v=4" width="130">
+        </td>
+        <td>
+            <img src="https://avatars.githubusercontent.com/u/93171052?v=4" width="130">
+        </td>
+        <td>
+            <img src="https://avatars.githubusercontent.com/u/132568348?v=4" width="130">
+        </td>
+    </tr>
+     <tr align="center">
+        <td><B>BE</B></td>
+        <td><B>BE</B></td>
+        <td><B>BE</B></td>
+        <td><B>BE</B></td>
+        <td><B>BE</B></td>
+    </tr>
+</table>
 
 # 프로젝트 소개
 Batch로 데이터를 관리하는 Open EMS의 Spring 백엔드 시스템 구축
@@ -47,6 +71,7 @@ Database: PostgreSQL
 - 직원 등록
 - 직원 상세 조회
 - 직원 수정
+- 직원 삭제
 ### 이병규
 - 직원 수 추이 조회
 - 직원 분포 조회
