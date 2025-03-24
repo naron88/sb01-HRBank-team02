@@ -14,18 +14,15 @@ import java.time.LocalDateTime;
 @Repository
 public interface ChangeLogRepository extends JpaRepository<ChangeLog, Long> {
 
-    @Query(
-        value = "SELECT * FROM change_logs WHERE " +
-            "(:employeeNumber IS NULL OR employee_number = :employeeNumber) " +
-            "AND (:type IS NULL OR type = :type) " +
-            "AND (:memo IS NULL OR memo LIKE CONCAT('%', :memo, '%')) " +
-            "AND (:ipAddress IS NULL OR ip_address = :ipAddress) " +
-            "AND at >= COALESCE(:atFrom, TO_TIMESTAMP('1970-01-01', 'YYYY-MM-DD')) " +
-            "AND at <= COALESCE(:atTo, NOW()) " +
-            "AND id > COALESCE(:idAfter, 0) " +
-            "ORDER BY at DESC, id ASC",
-        nativeQuery = true
-    )
+    @Query("SELECT c FROM ChangeLog c WHERE " +
+        "(:employeeNumber IS NULL OR c.employeeNumber = :employeeNumber) AND " +
+        "(:type IS NULL OR c.type = :type) AND " +
+        "(:memo IS NULL OR c.memo LIKE CONCAT('%', :memo, '%')) AND " +
+        "(:ipAddress IS NULL OR c.ipAddress = :ipAddress) AND " +
+        "c.at >= COALESCE(:atFrom, '1970-01-01T00:00:00') AND " +
+        "c.at <= COALESCE(:atTo, CURRENT_TIMESTAMP) AND " +
+        "c.id > COALESCE(:idAfter, 0) " +
+        "ORDER BY c.at DESC, c.id ASC")
     Page<ChangeLog> findByFilters(
         @Param("employeeNumber") String employeeNumber,
         @Param("type") String type,
@@ -37,7 +34,8 @@ public interface ChangeLogRepository extends JpaRepository<ChangeLog, Long> {
         Pageable pageable
     );
 
-
     @Query("SELECT COUNT(c) FROM ChangeLog c WHERE c.at BETWEEN :fromDate AND :toDate")
     Long countByAtBetween(@Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate);
 }
+
+
