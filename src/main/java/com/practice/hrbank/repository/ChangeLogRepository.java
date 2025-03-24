@@ -34,7 +34,8 @@ public interface ChangeLogRepository extends JpaRepository<ChangeLog, Long> {
         Pageable pageable
     );
 
-
     @Query("SELECT COUNT(c) FROM ChangeLog c WHERE c.at BETWEEN :fromDate AND :toDate")
     Long countByAtBetween(@Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate);
 }
+
+
